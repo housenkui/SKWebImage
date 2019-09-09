@@ -9,7 +9,8 @@
 #import "ViewController.h"
 
 @interface ViewController ()
-
+@property (strong,nonatomic)UIImageView *imageView;
+@property (strong,nonatomic) NSURLSession *session;
 @end
 
 @implementation ViewController

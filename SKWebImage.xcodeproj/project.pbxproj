@@ -13,6 +13,8 @@
 		EF1AB79123250EC00093F013 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF1AB79023250EC00093F013 /* Assets.xcassets */; };
 		EF1AB79423250EC00093F013 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EF1AB79223250EC00093F013 /* LaunchScreen.storyboard */; };
 		EF1AB79723250EC00093F013 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EF1AB79623250EC00093F013 /* main.m */; };
+		EF1AB79F23250F170093F013 /* SKWebImageManage.m in Sources */ = {isa = PBXBuildFile; fileRef = EF1AB79E23250F170093F013 /* SKWebImageManage.m */; };
+		EF1AB7A223269CB60093F013 /* SKWebImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = EF1AB7A123269CB60093F013 /* SKWebImageDownloader.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,10 @@
 		EF1AB79323250EC00093F013 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EF1AB79523250EC00093F013 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EF1AB79623250EC00093F013 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EF1AB79D23250F170093F013 /* SKWebImageManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKWebImageManage.h; sourceTree = "<group>"; };
+		EF1AB79E23250F170093F013 /* SKWebImageManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKWebImageManage.m; sourceTree = "<group>"; };
+		EF1AB7A023269CB60093F013 /* SKWebImageDownloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKWebImageDownloader.h; sourceTree = "<group>"; };
+		EF1AB7A123269CB60093F013 /* SKWebImageDownloader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKWebImageDownloader.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +68,10 @@
 				EF1AB78823250EBF0093F013 /* AppDelegate.m */,
 				EF1AB78A23250EBF0093F013 /* ViewController.h */,
 				EF1AB78B23250EBF0093F013 /* ViewController.m */,
+				EF1AB7A023269CB60093F013 /* SKWebImageDownloader.h */,
+				EF1AB7A123269CB60093F013 /* SKWebImageDownloader.m */,
+				EF1AB79D23250F170093F013 /* SKWebImageManage.h */,
+				EF1AB79E23250F170093F013 /* SKWebImageManage.m */,
 				EF1AB78D23250EBF0093F013 /* Main.storyboard */,
 				EF1AB79023250EC00093F013 /* Assets.xcassets */,
 				EF1AB79223250EC00093F013 /* LaunchScreen.storyboard */,
@@ -142,8 +152,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF1AB78C23250EBF0093F013 /* ViewController.m in Sources */,
+				EF1AB79F23250F170093F013 /* SKWebImageManage.m in Sources */,
 				EF1AB79723250EC00093F013 /* main.m in Sources */,
 				EF1AB78923250EBF0093F013 /* AppDelegate.m in Sources */,
+				EF1AB7A223269CB60093F013 /* SKWebImageDownloader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

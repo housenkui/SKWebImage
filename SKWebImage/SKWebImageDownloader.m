@@ -7,6 +7,7 @@
 //
 
 #import "SKWebImageDownloader.h"
+#import "SKWebImageCache.h"
 @interface SKWebImageDownloader ()<NSURLSessionDelegate>
 
 @property (strong,nonatomic) NSURL *url;
@@ -75,22 +76,6 @@ didReceiveResponse:(NSURLResponse *)response
     [self.imageData appendData:data];
 }
 
-//- (void)URLSession:(NSURLSession *)session
-//          dataTask:(NSURLSessionDataTask *)dataTask
-// willCacheResponse:(NSCachedURLResponse *)proposedResponse
-// completionHandler:(void (^)(NSCachedURLResponse *cachedResponse))completionHandler {
-//    //根据request的选项。决定是否缓存NSCachedURLResponse
-//    NSCachedURLResponse *cachedResponse = proposedResponse;
-//
-//    if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData) {
-//        // Prevents caching of responses
-//        cachedResponse = nil;
-//    }
-//    if (completionHandler) {
-//        completionHandler(cachedResponse);
-//    }
-//}
-
 #pragma mark NSURLSessionTaskDelegate
 
 /*
@@ -101,48 +86,15 @@ didReceiveResponse:(NSURLResponse *)response
         UIImage *image = [UIImage imageWithData:self.imageData];
         if (image) {
             self.completedBlock(image, error);
+            NSLog(@"didCompleteWithError Thread = %@",[NSThread currentThread]);
+            [[SKWebImageCache sharedImageCache] saveImage:image imageData:self.imageData withKey:self.url.absoluteString completed:^(BOOL finish) {
+                NSLog(@"self.imageData.length = %lu",self.imageData.length);
+               NSLog(@"finish = %d",finish);
+            }];
         }
     }
     else {
         self.completedBlock(nil, [NSError errorWithDomain:@"SKWebImageErrorDomain" code:0 userInfo:@{NSLocalizedDescriptionKey : @"Image data is nil"}]);
-    }
-   
-}
-/*
- 验证HTTPS的证书
- */
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
-
-    NSURLSessionAuthChallengeDisposition disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-    __block NSURLCredential *credential = nil;
-
-    credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-    disposition = NSURLSessionAuthChallengeUseCredential;
-    //使用可信任证书机构的证书
-//    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-//        //如果SDWebImageDownloaderAllowInvalidSSLCertificates属性设置了，则不验证SSL证书。直接信任
-//        if (!(self.options & SDWebImageDownloaderAllowInvalidSSLCertificates)) {
-//            disposition = NSURLSessionAuthChallengePerformDefaultHandling;
-//        } else {
-//            credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
-//            disposition = NSURLSessionAuthChallengeUseCredential;
-//        }
-//    } else {
-//        //使用自己生成的证书
-//        if (challenge.previousFailureCount == 0) {
-//            if (self.credential) {
-//                credential = self.credential;
-//                disposition = NSURLSessionAuthChallengeUseCredential;
-//            } else {
-//                disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
-//            }
-//        } else {
-//            disposition = NSURLSessionAuthChallengeCancelAuthenticationChallenge;
-//        }
-//    }
-    //验证证书
-    if (completionHandler) {
-        completionHandler(disposition, credential);
     }
 }
 @end

@@ -7,22 +7,14 @@
 //
 #import "SKWebImageDownloader.h"
 #import "ViewController.h"
-
-#ifndef dispatch_main_async_safe
-#define dispatch_main_async_safe(block)\
-if (strcmp(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL), dispatch_queue_get_label(dispatch_get_main_queue())) == 0) {\
-block();\
-} else {\
-dispatch_async(dispatch_get_main_queue(), block);\
-}
-#endif
+#import "SKWebImageMacros.h"
+#import "SKWebImageManage.h"
 static NSString *url =  @"https://avatars2.githubusercontent.com/u/5885635?s=460&v=4";
 
 @interface ViewController ()
 
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 
-@property (strong,nonatomic) NSURLSession *session;
 @end
 
 @implementation ViewController
@@ -30,17 +22,17 @@ static NSString *url =  @"https://avatars2.githubusercontent.com/u/5885635?s=460
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    NSLog(@"viewDidLoad");
 }
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     
-    [[SKWebImageDownloader sharedDownloader]downloadImageWithURL:[NSURL URLWithString:@"https://avatars2.githubusercontent.com/u/5885635?s=460&v=4"] completed:^(UIImage * _Nullable image, NSError * _Nullable error) {
+    [[SKWebImageManage manager]fetchImageWithKey:url completed:^(UIImage * _Nullable image, NSError * _Nullable error) {
         if (image) {
             dispatch_main_async_safe(^{
                 self.imageView.image = image;
             });
         }
     }];
-    
 }
 
 @end

@@ -7,11 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import <UIKit/UIKit.h>
 NS_ASSUME_NONNULL_BEGIN
+typedef void(^SKWebImagefetchImageCompletedBlock)(UIImage * _Nullable image,NSError * _Nullable error);
 
 @interface SKWebImageManage : NSObject
-
++ (instancetype)manager;
+- (void)fetchImageWithKey:(NSString *)key completed:(SKWebImagefetchImageCompletedBlock) fetchImageCompletedBlock;
+    
 @end
 
 NS_ASSUME_NONNULL_END

@@ -25,8 +25,18 @@
 }
 - (void)setup {
     self.imageCache = [SKWebImageCache sharedImageCache];
-    self.downloader = [SKWebImageDownloader sharedDownloader];
-    
+}
+- (SKWebImageCache *)imageCache {
+    if (!_imageCache) {
+        _imageCache = [SKWebImageCache sharedImageCache];
+    }
+    return _imageCache;
+}
+- (SKWebImageDownloader *)downloader {
+    if (!_downloader) {
+        _downloader = [[SKWebImageDownloader alloc]init];
+    }
+    return _downloader;
 }
 - (void)fetchImageWithKey:(NSString *)key completed:(SKWebImagefetchImageCompletedBlock) fetchImageCompletedBlock  {
     

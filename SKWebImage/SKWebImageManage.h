@@ -13,6 +13,7 @@ typedef void(^SKWebImagefetchImageCompletedBlock)(UIImage * _Nullable image,NSEr
 
 @interface SKWebImageManage : NSObject
 + (instancetype)manager;
+    
 - (void)fetchImageWithKey:(NSString *)key completed:(SKWebImagefetchImageCompletedBlock) fetchImageCompletedBlock;
     
 @end

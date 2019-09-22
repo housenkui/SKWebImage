@@ -35,7 +35,8 @@
     return [[SKImageCache sharedImageCache]imageFromKey:url.absoluteString];
 }
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate {
-    if (url == nil || [failedURLs containsObject:url]) {
+    if (url == nil || [failedURLs containsObject:url])
+    {
         return;
     }
     SKImageDownloader *downloader = [downloaderForURL objectForKey:url];
@@ -43,16 +44,16 @@
         downloader = [SKImageDownloader downloaderWithURL:url delegate:self];
         [downloaderForURL setObject:downloader forKey:url];
     }
-    @synchronized (self) {
-        [delegates addObject:delegate];
-        [downloaders addObject:downloader];
-    }
+
+    [delegates addObject:delegate];
+    [downloaders addObject:downloader];
 }
 
-- (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate {
-    @synchronized (self) {
-        NSUInteger idx = [delegates indexOfObject:delegate];
-        if (idx == NSNotFound) {
+- (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
+{
+        NSUInteger idx = [delegates indexOfObjectIdenticalTo:delegate];
+        if (idx == NSNotFound)
+        {
             return;
         }
         SKImageDownloader *downloader = [downloaders objectAtIndex:idx];
@@ -64,26 +65,30 @@
             [downloader cancel];
             [downloaderForURL removeObjectForKey:downloader.url];
         }
-    }
 }
 
-- (void)imageDownloader:(SKImageDownloader *)downloader didFinishWithImage:(UIImage *)image {
-    @synchronized (self) {
-        for (NSInteger idx = [downloaders count] - 1; idx >= 0; idx --) {
-            SKImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
-            if (aDownloader == downloader) {
-                id <SKWebImageManagerDelegate> delegate = [delegates objectAtIndex:idx];
-                if (image && [delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)]) {
-                    [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
-                }
-                [downloaders removeObjectAtIndex:idx];
-                [delegates removeObjectAtIndex:idx];
+- (void)imageDownloader:(SKImageDownloader *)downloader didFinishWithImage:(UIImage *)image
+{
+    for (NSInteger idx = [downloaders count] - 1; idx >= 0; idx --)
+    {
+        SKImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
+        if (aDownloader == downloader)
+        {
+            id <SKWebImageManagerDelegate> delegate = [delegates objectAtIndex:idx];
+            if (image && [delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
+            {
+                [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
             }
+            [downloaders removeObjectAtIndex:idx];
+            [delegates removeObjectAtIndex:idx];
         }
     }
-    if (image) {
+    if (image)
+    {
         [[SKImageCache sharedImageCache] storeImage:image forKey:downloader.url.absoluteString];
-    }else {
+    }
+    else
+    {
         //The image can't be downloaded from this URL,mark the URL as failed so we won't try and fail again and again
         [failedURLs addObject:downloader.url];
     }

@@ -7,20 +7,24 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <UIKit/UIKit.h>
 #import "SKImageDownloaderDelegate.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SKImageDownloader : NSOperation
+@interface SKImageDownloader : NSObject
 {
+    @private
     NSURL *url;
     __weak id <SKImageDownloaderDelegate> delegate;
+    NSURLConnection *connection;
+    NSMutableData *imageData;
 }
 @property(strong,nonatomic)NSURL *url;
 @property(weak,nonatomic)id <SKImageDownloaderDelegate>delegate;
 
 +(id)downloaderWithURL:(NSURL *)url delegate:(id <SKImageDownloaderDelegate>)delegate;
-+(void)setMaxConcurrentDownloaders:(NSUInteger)max;
++(void)setMaxConcurrentDownloaders:(NSUInteger)max __attribute__((deprecated));
+- (void)start;
+- (void)cancel;
 @end
 
 NS_ASSUME_NONNULL_END

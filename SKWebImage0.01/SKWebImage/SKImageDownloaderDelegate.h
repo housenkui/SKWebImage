@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SKImageDownloaderDelegate <NSObject>
 @optional
 - (void)imageDownloader:(SKImageDownloader *)downloader didFinishWithImage:(UIImage *)image;
+- (void)imageDownloader:(SKImageDownloader *)downloader didFailWithError:(NSError *)error;
 @end
 
 NS_ASSUME_NONNULL_END

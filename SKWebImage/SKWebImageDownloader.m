@@ -34,8 +34,6 @@
  */
 @property (strong, nonatomic, nullable) NSMutableData *imageData;
 
-@property (strong,nonatomic) NSMutableArray *downloadURLs;
-@property (strong,nonatomic) NSMutableDictionary *mdict;
 @end
 
 @implementation SKWebImageDownloader
@@ -45,25 +43,20 @@
     static SKWebImageDownloader *instance;
     dispatch_once(&once, ^{
         instance = [[SKWebImageDownloader alloc]init];
-        [instance setup];
     });
     return instance;
 }
-- (void)setup {
-    
-    _downloadURLs = [[NSMutableArray alloc]init];
-    _mdict = [[NSMutableDictionary alloc]init];
-}
+
 - (void)downloadImageWithURL:(nullable NSURL *)url
                    completed:(nullable SKWebImageDownloaderCompletedBlock)completedBlock {
-    @synchronized (self) {
+//    @synchronized (self) {
         self.url = url;
         self.completedBlock = completedBlock;
         NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
         sessionConfig.timeoutIntervalForRequest = 15;
         NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:nil];
         self.dataTask = [session dataTaskWithRequest:[NSURLRequest requestWithURL:url]];
-    }
+//    }
     //发送请求
     [self.dataTask resume];
 
@@ -95,18 +88,32 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
     [self.imageData appendData:data];
 }
-
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+ willCacheResponse:(NSCachedURLResponse *)proposedResponse
+ completionHandler:(void (^)(NSCachedURLResponse *cachedResponse))completionHandler {
+    //根据request的选项。决定是否缓存NSCachedURLResponse
+//    NSCachedURLResponse *cachedResponse = proposedResponse;
+    
+//    if (self.request.cachePolicy == NSURLRequestReloadIgnoringLocalCacheData) {
+//        // Prevents caching of responses
+//        cachedResponse = nil;
+//    }
+    if (completionHandler) {
+        completionHandler(nil);
+    }
+}
 #pragma mark NSURLSessionTaskDelegate
 
 /*
  网络请求加载完成，在这里处理获得的数据
  */
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-//    [_downloadURLs removeObject:task.currentRequest.URL.absoluteString];
     NSLog(@"已经完成 task.taskIdentifier = %lu, %@",task.taskIdentifier,[NSThread currentThread]);
-    @synchronized(self) {
+//    @synchronized(self) {
+        [self.dataTask cancel];
         self.dataTask = nil;
-    }
+//    }
     if (self.imageData) {
         UIImage *image = [UIImage imageWithData:self.imageData];
         if (image) {

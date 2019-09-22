@@ -40,7 +40,7 @@
 }
 - (void)fetchImageWithKey:(NSString *)key completed:(SKWebImagefetchImageCompletedBlock) fetchImageCompletedBlock  {
     
-    [self.imageCache getImageWithKey:key completed:^(UIImage * _Nonnull image) { //先去取磁盘
+    [self.imageCache getImageWithKey:key completed:^(UIImage * _Nonnull image) { //先去取内存缓存和磁盘缓存
         if (image) {
             fetchImageCompletedBlock(image,nil);
         } else {//没有再去下载

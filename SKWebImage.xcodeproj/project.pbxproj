@@ -16,6 +16,16 @@
 		EF1AB79723250EC00093F013 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EF1AB79623250EC00093F013 /* main.m */; };
 		EF1AB79F23250F170093F013 /* SKWebImageManage.m in Sources */ = {isa = PBXBuildFile; fileRef = EF1AB79E23250F170093F013 /* SKWebImageManage.m */; };
 		EF1AB7A223269CB60093F013 /* SKWebImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = EF1AB7A123269CB60093F013 /* SKWebImageDownloader.m */; };
+		EF33E3C12337718500FC7F4B /* SKImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF33E3C02337718500FC7F4B /* SKImageCache.m */; };
+		EF33E3C423377C7200FC7F4B /* SKImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = EF33E3C323377C7200FC7F4B /* SKImageDownloader.m */; };
+		EF33E3C82337800100FC7F4B /* SKImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EF33E3C72337800100FC7F4B /* SKImageManager.m */; };
+		EF33E3CC233786DD00FC7F4B /* UIImageView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF33E3CB233786DD00FC7F4B /* UIImageView+WebCache.m */; };
+		EF37651223376F7300151832 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EF37651123376F7300151832 /* AppDelegate.m */; };
+		EF37651523376F7300151832 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EF37651423376F7300151832 /* ViewController.m */; };
+		EF37651823376F7300151832 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EF37651623376F7300151832 /* Main.storyboard */; };
+		EF37651A23376F7500151832 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF37651923376F7500151832 /* Assets.xcassets */; };
+		EF37651D23376F7500151832 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EF37651B23376F7500151832 /* LaunchScreen.storyboard */; };
+		EF37652023376F7500151832 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EF37651F23376F7500151832 /* main.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,10 +46,37 @@
 		EF1AB79E23250F170093F013 /* SKWebImageManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKWebImageManage.m; sourceTree = "<group>"; };
 		EF1AB7A023269CB60093F013 /* SKWebImageDownloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKWebImageDownloader.h; sourceTree = "<group>"; };
 		EF1AB7A123269CB60093F013 /* SKWebImageDownloader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKWebImageDownloader.m; sourceTree = "<group>"; };
+		EF33E3BF2337718500FC7F4B /* SKImageCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKImageCache.h; sourceTree = "<group>"; };
+		EF33E3C02337718500FC7F4B /* SKImageCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKImageCache.m; sourceTree = "<group>"; };
+		EF33E3C223377C7200FC7F4B /* SKImageDownloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKImageDownloader.h; sourceTree = "<group>"; };
+		EF33E3C323377C7200FC7F4B /* SKImageDownloader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKImageDownloader.m; sourceTree = "<group>"; };
+		EF33E3C523377CC900FC7F4B /* SKImageDownloaderDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKImageDownloaderDelegate.h; sourceTree = "<group>"; };
+		EF33E3C62337800100FC7F4B /* SKImageManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKImageManager.h; sourceTree = "<group>"; };
+		EF33E3C72337800100FC7F4B /* SKImageManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKImageManager.m; sourceTree = "<group>"; };
+		EF33E3C92337810500FC7F4B /* SKWebImageManagerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKWebImageManagerDelegate.h; sourceTree = "<group>"; };
+		EF33E3CA233786DD00FC7F4B /* UIImageView+WebCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImageView+WebCache.h"; sourceTree = "<group>"; };
+		EF33E3CB233786DD00FC7F4B /* UIImageView+WebCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+WebCache.m"; sourceTree = "<group>"; };
+		EF37650E23376F7300151832 /* SKWebImage0.01.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SKWebImage0.01.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF37651023376F7300151832 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		EF37651123376F7300151832 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		EF37651323376F7300151832 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		EF37651423376F7300151832 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		EF37651723376F7300151832 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		EF37651923376F7500151832 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EF37651C23376F7500151832 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		EF37651E23376F7500151832 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EF37651F23376F7500151832 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		EF1AB78123250EBF0093F013 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF37650B23376F7300151832 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -53,6 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				EF1AB78623250EBF0093F013 /* SKWebImage */,
+				EF37650F23376F7300151832 /* SKWebImage0.01 */,
 				EF1AB78523250EBF0093F013 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				EF1AB78423250EBF0093F013 /* SKWebImage.app */,
+				EF37650E23376F7300151832 /* SKWebImage0.01.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -88,6 +127,40 @@
 			path = SKWebImage;
 			sourceTree = "<group>";
 		};
+		EF33E3BE2337716900FC7F4B /* SKWebImage */ = {
+			isa = PBXGroup;
+			children = (
+				EF33E3BF2337718500FC7F4B /* SKImageCache.h */,
+				EF33E3C02337718500FC7F4B /* SKImageCache.m */,
+				EF33E3C223377C7200FC7F4B /* SKImageDownloader.h */,
+				EF33E3C323377C7200FC7F4B /* SKImageDownloader.m */,
+				EF33E3C523377CC900FC7F4B /* SKImageDownloaderDelegate.h */,
+				EF33E3C62337800100FC7F4B /* SKImageManager.h */,
+				EF33E3C72337800100FC7F4B /* SKImageManager.m */,
+				EF33E3C92337810500FC7F4B /* SKWebImageManagerDelegate.h */,
+				EF33E3CA233786DD00FC7F4B /* UIImageView+WebCache.h */,
+				EF33E3CB233786DD00FC7F4B /* UIImageView+WebCache.m */,
+			);
+			path = SKWebImage;
+			sourceTree = "<group>";
+		};
+		EF37650F23376F7300151832 /* SKWebImage0.01 */ = {
+			isa = PBXGroup;
+			children = (
+				EF33E3BE2337716900FC7F4B /* SKWebImage */,
+				EF37651023376F7300151832 /* AppDelegate.h */,
+				EF37651123376F7300151832 /* AppDelegate.m */,
+				EF37651323376F7300151832 /* ViewController.h */,
+				EF37651423376F7300151832 /* ViewController.m */,
+				EF37651623376F7300151832 /* Main.storyboard */,
+				EF37651923376F7500151832 /* Assets.xcassets */,
+				EF37651B23376F7500151832 /* LaunchScreen.storyboard */,
+				EF37651E23376F7500151832 /* Info.plist */,
+				EF37651F23376F7500151832 /* main.m */,
+			);
+			path = SKWebImage0.01;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -108,6 +181,23 @@
 			productReference = EF1AB78423250EBF0093F013 /* SKWebImage.app */;
 			productType = "com.apple.product-type.application";
 		};
+		EF37650D23376F7300151832 /* SKWebImage0.01 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF37652123376F7500151832 /* Build configuration list for PBXNativeTarget "SKWebImage0.01" */;
+			buildPhases = (
+				EF37650A23376F7300151832 /* Sources */,
+				EF37650B23376F7300151832 /* Frameworks */,
+				EF37650C23376F7300151832 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SKWebImage0.01;
+			productName = SKWebImage0.01;
+			productReference = EF37650E23376F7300151832 /* SKWebImage0.01.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -118,6 +208,9 @@
 				ORGANIZATIONNAME = "侯森魁";
 				TargetAttributes = {
 					EF1AB78323250EBF0093F013 = {
+						CreatedOnToolsVersion = 10.3;
+					};
+					EF37650D23376F7300151832 = {
 						CreatedOnToolsVersion = 10.3;
 					};
 				};
@@ -136,6 +229,7 @@
 			projectRoot = "";
 			targets = (
 				EF1AB78323250EBF0093F013 /* SKWebImage */,
+				EF37650D23376F7300151832 /* SKWebImage0.01 */,
 			);
 		};
 /* End PBXProject section */
@@ -148,6 +242,16 @@
 				EF1AB79423250EC00093F013 /* LaunchScreen.storyboard in Resources */,
 				EF1AB79123250EC00093F013 /* Assets.xcassets in Resources */,
 				EF1AB78F23250EBF0093F013 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF37650C23376F7300151832 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF37651D23376F7500151832 /* LaunchScreen.storyboard in Resources */,
+				EF37651A23376F7500151832 /* Assets.xcassets in Resources */,
+				EF37651823376F7300151832 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -167,6 +271,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EF37650A23376F7300151832 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF37651523376F7300151832 /* ViewController.m in Sources */,
+				EF37652023376F7500151832 /* main.m in Sources */,
+				EF33E3C12337718500FC7F4B /* SKImageCache.m in Sources */,
+				EF33E3C423377C7200FC7F4B /* SKImageDownloader.m in Sources */,
+				EF33E3CC233786DD00FC7F4B /* UIImageView+WebCache.m in Sources */,
+				EF37651223376F7300151832 /* AppDelegate.m in Sources */,
+				EF33E3C82337800100FC7F4B /* SKImageManager.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
@@ -182,6 +300,22 @@
 			isa = PBXVariantGroup;
 			children = (
 				EF1AB79323250EC00093F013 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		EF37651623376F7300151832 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EF37651723376F7300151832 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		EF37651B23376F7500151832 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EF37651C23376F7500151832 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -305,7 +439,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = SKWebImage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -313,6 +448,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = test.SKWebImage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -321,7 +457,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = SKWebImage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -329,6 +466,45 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = test.SKWebImage;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		EF37652223376F7500151832 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = SKWebImage0.01/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "test.SKWebImage0-01";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EF37652323376F7500151832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = SKWebImage0.01/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "test.SKWebImage0-01";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -350,6 +526,15 @@
 			buildConfigurations = (
 				EF1AB79B23250EC00093F013 /* Debug */,
 				EF1AB79C23250EC00093F013 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF37652123376F7500151832 /* Build configuration list for PBXNativeTarget "SKWebImage0.01" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF37652223376F7500151832 /* Debug */,
+				EF37652323376F7500151832 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

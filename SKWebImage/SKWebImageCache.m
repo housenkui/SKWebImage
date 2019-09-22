@@ -75,11 +75,7 @@
  */
 - (void)getImageInMemoryCacheWithKey:(NSString *)key completed:(void(^)(UIImage *image))completed{
     UIImage *image = [self.memoryCache objectForKey:[self cachedFileNameForKey:key]];
-    if (image) {
-        completed(image);
-    } else {
-        completed(nil);
-    }
+    completed(image);
 }
     
 /**
@@ -114,7 +110,10 @@
         }
     }];
 }
-    
+
+
+
+
 - (void)saveImage:(UIImage *)image imageData:(NSData *)imageData withKey:(NSString *)key completed:(void(^)(BOOL finish))completed {
     [self saveImage:image inMemoryCacheWithkey:key];//保存到内存中
     [self saveImage:imageData inDiskCacheWithkey:key completed:^(BOOL finished) {

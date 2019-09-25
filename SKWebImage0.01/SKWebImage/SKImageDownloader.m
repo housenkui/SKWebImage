@@ -14,6 +14,7 @@
 @end
 @implementation SKImageDownloader
 @synthesize url,delegate,connection,imageData;
+
 +(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate {
     SKImageDownloader *downloader = [[SKImageDownloader alloc]init];
     downloader.url = url;
@@ -30,6 +31,7 @@
     self.connection = [[NSURLConnection alloc]initWithRequest:request delegate:self startImmediately:NO];
     [connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
     [connection start];
+    
     if (connection) {
         self.imageData = [NSMutableData data];
     }
@@ -52,6 +54,7 @@
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
     [imageData appendData:data];
+    NSLog(@"-----%@-----",[NSThread currentThread]);
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection

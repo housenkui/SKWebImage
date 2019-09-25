@@ -24,15 +24,9 @@
     UIImage *cacheImage = [manager imageWithURL:url];
     if (cacheImage) {
         self.image = cacheImage;
-
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//        });
     } else {
         if (placeholder) {
             self.image = placeholder;
-
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//            });
         }
         [manager downloadWithURL:url delegate:self];
     }

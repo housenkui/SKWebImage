@@ -9,7 +9,6 @@
 #import "SKImageCache.h"
 #import <CommonCrypto/CommonDigest.h>
 static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
-static SKImageCache *instance;
 @implementation SKImageCache
 
 - (instancetype)init {
@@ -48,9 +47,11 @@ static SKImageCache *instance;
 }
 #pragma mark SKImageCache (class methods)
 + (SKImageCache *)sharedImageCache {
-    if (!instance) {
+    static SKImageCache *instance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         instance = [[SKImageCache alloc]init];
-    }
+    });
     return instance;
 }
 #pragma mark SKImageCache (private)

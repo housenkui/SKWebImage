@@ -10,7 +10,6 @@
 
 @interface SKImageDownloader ()
 @property (strong,nonatomic) NSURLConnection *connection;
-@property (strong,nonatomic) NSMutableData *imageData;
 @end
 @implementation SKImageDownloader
 @synthesize url,delegate,connection,imageData;
@@ -19,7 +18,8 @@
     SKImageDownloader *downloader = [[SKImageDownloader alloc]init];
     downloader.url = url;
     downloader.delegate = delegate;
-    [downloader start];
+    //Ensure the downloader is started from the main thread
+    [downloader performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:YES];
     return downloader;
 }
 + (void)setMaxConcurrentDownloaders:(NSUInteger)max {
@@ -59,11 +59,16 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    UIImage *image = [[UIImage alloc]initWithData:imageData];
-    self.imageData = nil;
     self.connection = nil;
+    
+    if ([delegate respondsToSelector:@selector(imageDownloaderDidFinish:)])
+    {
+        [delegate performSelector:@selector(imageDownloaderDidFinish:) withObject:self];
+    }
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
+        UIImage *image = [[UIImage alloc]initWithData:imageData];
+        self.imageData = nil;
         [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
     }
 }

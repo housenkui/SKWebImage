@@ -16,6 +16,9 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
         //Init the memory cache
         memCache = [[NSMutableDictionary alloc]init];
         
+        //Init the disk cache
+        storeDataQueue = [[NSMutableDictionary alloc]init];
+        
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         diskCachePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:@"SKImageCache"];
         if (![[NSFileManager defaultManager]fileExistsAtPath:diskCachePath]) {
@@ -35,6 +38,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
                                                 selector:@selector(cleanDisk)
                                                     name:UIApplicationWillTerminateNotification
                                                   object:nil];
+#ifdef __IPHONE_4_0
         UIDevice *device = [UIDevice currentDevice];
         if ([device respondsToSelector:@selector(isMultitaskingSupported)]) {
             [[NSNotificationCenter defaultCenter]addObserver:self
@@ -42,6 +46,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
                                                         name:UIApplicationDidEnterBackgroundNotification
                                                       object:nil];
         }
+#endif
     }
     return self;
 }
@@ -65,32 +70,56 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     
     return [diskCachePath stringByAppendingPathComponent:filename];
 }
-
+#pragma mark --存储到硬盘中
 - (void)storeKeyToDisk:(NSString *)key {
-    UIImage *image = [self imageFromKey:key fromDisk:YES];
-    if (image) {
-        [[NSFileManager defaultManager]createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
+    
+    //Can't use defaultManager another thread
+    NSFileManager *fileManager = [[NSFileManager alloc]init];
+    NSData *data = [storeDataQueue objectForKey:key];
+    if (data) {
+        [fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
+        @synchronized (storeDataQueue)
+        {
+            [storeDataQueue removeObjectForKey:key];
+        }
+    }
+    else{
+        //If no data representation given,convert the UIImage in JPEG and store it
+        //This trick is more CPU/memory intensive and doesn't preserve alpha channel
+        UIImage *image = [self imageFromKey:key fromDisk:YES];
+        if (image) {
+            [[NSFileManager defaultManager]createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
+        }
     }
 }
-
-- (void)storeImage:(UIImage *)image forKey:(NSString *)key {
-    [self storeImage:image forKey:key toDisk:YES];
-}
-
-- (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk {
-    if (image == nil || key == nil) {
+- (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk {
+    if (!image || !key) {
+        return;
+    }
+    if (toDisk && !data) {
         return;
     }
     [memCache setObject:image forKey:key];
     if (toDisk) {
+        [storeDataQueue setObject:data forKey:key];
         NSInvocationOperation *invocationOperation = [[NSInvocationOperation alloc]initWithTarget:self selector:@selector(storeKeyToDisk:) object:key];
         [cacheInQueue addOperation:invocationOperation];
+        
     }
+}
+
+- (void)storeImage:(UIImage *)image forKey:(NSString *)key {
+    [self storeImage:image imageData:nil forKey:key toDisk:YES];
+}
+
+- (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk {
+    [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
 }
 - (UIImage *)imageFromKey:(NSString *)key
 {
   return  [self imageFromKey:key fromDisk:YES];
 }
+
 - (UIImage *)imageFromKey:(NSString *)key fromDisk:(BOOL)fromDisk {
     if (!key) {
         return nil;

@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 @property(strong,nonatomic)NSURL *url;
 @property(weak,nonatomic)id <SKImageDownloaderDelegate>delegate;
+@property (strong,nonatomic,nullable) NSMutableData *imageData;
 
 +(id)downloaderWithURL:(NSURL *)url delegate:(id <SKImageDownloaderDelegate>)delegate;
 +(void)setMaxConcurrentDownloaders:(NSUInteger)max __attribute__((deprecated));

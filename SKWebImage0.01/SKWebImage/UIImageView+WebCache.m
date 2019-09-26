@@ -20,20 +20,31 @@
     
     //Remove in progress downloader from queue
     [manager cancelForDelegate:self];
-    
-    UIImage *cacheImage = [manager imageWithURL:url];
-    if (cacheImage) {
-        self.image = cacheImage;
-    } else {
+    UIImage *cachedImage = nil;
+    if (url) {
+       cachedImage = [manager imageWithURL:url];
+    }
+    if (cachedImage) {
+        self.image = cachedImage;
+    }
+    else
+    {
         if (placeholder) {
             self.image = placeholder;
         }
-        [manager downloadWithURL:url delegate:self];
+        if (url) {
+            [manager downloadWithURL:url delegate:self];
+        }
     }
 }
 - (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image{
     dispatch_async(dispatch_get_main_queue(), ^{
         self.image = image;
     });
+}
+
+- (void)cancelCurrentImageLoad {
+    
+    [[SKImageManager sharedManager] cancelForDelegate:self];
 }
 @end

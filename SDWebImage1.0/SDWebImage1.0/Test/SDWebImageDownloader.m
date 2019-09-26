@@ -10,7 +10,6 @@
 
 @interface SDWebImageDownloader ()
 @property (nonatomic, retain) NSURLConnection *connection;
-@property (nonatomic, retain) NSMutableData *imageData;
 @end
 
 @implementation SDWebImageDownloader
@@ -23,7 +22,7 @@
     SDWebImageDownloader *downloader = [[[SDWebImageDownloader alloc] init] autorelease];
     downloader.url = url;
     downloader.delegate = delegate;
-    [downloader start];
+    [downloader performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:YES];
     return downloader;
 }
 
@@ -73,16 +72,19 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
 {
-    UIImage *image = [[UIImage alloc] initWithData:imageData];
-    self.imageData = nil;
     self.connection = nil;
+
+    if ([delegate respondsToSelector:@selector(imageDownloaderDidFinish:)])
+    {
+        [delegate performSelector:@selector(imageDownloaderDidFinish:) withObject:self];
+    }
 
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
+        UIImage *image = [[UIImage alloc] initWithData:imageData];
         [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+        [image release];
     }
-
-    [image release];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error

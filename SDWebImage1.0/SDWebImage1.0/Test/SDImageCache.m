@@ -4,7 +4,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */ 
+ */
 
 #import "SDImageCache.h"
 #import <CommonCrypto/CommonDigest.h>
@@ -14,18 +14,6 @@ static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
 static SDImageCache *instance;
 
 @implementation SDImageCache
-
-#pragma mark SDImageCache (notification handlers)
-
-- (void)didReceiveMemoryWarning:(void *)object
-{
-    [self clearMemory];
-}
-
-- (void)willTerminate
-{
-    [self cleanDisk];
-}
 
 #pragma mark NSObject
 
@@ -37,12 +25,16 @@ static SDImageCache *instance;
         memCache = [[NSMutableDictionary alloc] init];
 
         // Init the disk cache
+        storeDataQueue = [[NSMutableDictionary alloc] init];
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         diskCachePath = [[[paths objectAtIndex:0] stringByAppendingPathComponent:@"ImageCache"] retain];
-        		
+
         if (![[NSFileManager defaultManager] fileExistsAtPath:diskCachePath])
         {
-            [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath attributes:nil];
+            [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath
+                                      withIntermediateDirectories:YES
+                                                       attributes:nil
+                                                            error:NULL];
         }
 
         // Init the operation queue
@@ -51,14 +43,26 @@ static SDImageCache *instance;
 
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didReceiveMemoryWarning:)
-                                                     name:UIApplicationDidReceiveMemoryWarningNotification  
+                                                 selector:@selector(clearMemory)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
-        
+
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(willTerminate)
-                                                     name:UIApplicationWillTerminateNotification  
-                                                   object:nil];        
+                                                 selector:@selector(cleanDisk)
+                                                     name:UIApplicationWillTerminateNotification
+                                                   object:nil];
+
+        #ifdef __IPHONE_4_0
+        UIDevice *device = [UIDevice currentDevice];
+        if ([device respondsToSelector:@selector(isMultitaskingSupported)] && device.multitaskingSupported)
+        {
+            // When in background, clean memory in order to have less chance to be killed
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(clearMemory)
+                                                         name:UIApplicationDidEnterBackgroundNotification
+                                                       object:nil];
+        }
+        #endif
     }
 
     return self;
@@ -66,18 +70,13 @@ static SDImageCache *instance;
 
 - (void)dealloc
 {
-    [memCache release];
-    [diskCachePath release];
-    [cacheInQueue release];
+    [memCache release], memCache = nil;
+    [diskCachePath release], diskCachePath = nil;
+    [cacheInQueue release], cacheInQueue = nil;
+    [storeDataQueue release], storeDataQueue = nil;
 
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationDidReceiveMemoryWarningNotification  
-                                                  object:nil];  
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIApplicationWillTerminateNotification  
-                                                  object:nil];  
-    
     [super dealloc];
 }
 
@@ -89,7 +88,7 @@ static SDImageCache *instance;
     {
         instance = [[SDImageCache alloc] init];
     }
-    
+
     return instance;
 }
 
@@ -108,25 +107,43 @@ static SDImageCache *instance;
 
 - (void)storeKeyToDisk:(NSString *)key
 {
-    UIImage *image = [[self imageFromKey:key fromDisk:YES] retain]; // be thread safe with no lock
+    // Can't use defaultManager another thread
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
 
-    if (image != nil)
+    NSData *data = [storeDataQueue objectForKey:key];
+    if (data)
     {
-        [[NSFileManager defaultManager] createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
-        [image release];
+        [fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
+        @synchronized(storeDataQueue)
+        {
+            [storeDataQueue removeObjectForKey:key];
+        }
     }
+    else
+    {
+        // If no data representation given, convert the UIImage in JPEG and store it
+        // This trick is more CPU/memory intensive and doesn't preserve alpha channel
+        UIImage *image = [[self imageFromKey:key fromDisk:YES] retain]; // be thread safe with no lock
+        if (image)
+        {
+            [fileManager createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
+            [image release];
+        }
+    }
+
+    [fileManager release];
 }
 
 #pragma mark ImageCache
 
-- (void)storeImage:(UIImage *)image forKey:(NSString *)key
+- (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk
 {
-    [self storeImage:image forKey:key toDisk:YES];
-}
+    if (!image || !key)
+    {
+        return;
+    }
 
-- (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk
-{
-    if (image == nil || key == nil)
+    if (toDisk && !data)
     {
         return;
     }
@@ -134,10 +151,23 @@ static SDImageCache *instance;
     [memCache setObject:image forKey:key];
 
     if (toDisk)
-    {        
+    {
+        [storeDataQueue setObject:data forKey:key];
         [cacheInQueue addOperation:[[[NSInvocationOperation alloc] initWithTarget:self selector:@selector(storeKeyToDisk:) object:key] autorelease]];
+
     }
 }
+
+- (void)storeImage:(UIImage *)image forKey:(NSString *)key
+{
+    [self storeImage:image imageData:nil forKey:key toDisk:YES];
+}
+
+- (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk
+{
+    [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
+}
+
 
 - (UIImage *)imageFromKey:(NSString *)key
 {
@@ -155,11 +185,11 @@ static SDImageCache *instance;
 
     if (!image && fromDisk)
     {
-        image = [[UIImage alloc] initWithData:[NSData dataWithContentsOfFile:[self cachePathForKey:key]]];
+        image = [[UIImage alloc] initWithContentsOfFile:[self cachePathForKey:key]];
         if (image != nil)
         {
             [memCache setObject:image forKey:key];
-            [image release];
+            [image autorelease];
         }
     }
 
@@ -187,7 +217,10 @@ static SDImageCache *instance;
 {
     [cacheInQueue cancelAllOperations];
     [[NSFileManager defaultManager] removeItemAtPath:diskCachePath error:nil];
-    [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath attributes:nil];    
+    [[NSFileManager defaultManager] createDirectoryAtPath:diskCachePath
+                              withIntermediateDirectories:YES
+                                               attributes:nil
+                                                    error:NULL];
 }
 
 - (void)cleanDisk

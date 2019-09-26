@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setImageWithURL:(NSURL *)url;
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(nullable UIImage *)placeholder;
+- (void)cancelCurrentImageLoad;
 @end
 
 NS_ASSUME_NONNULL_END

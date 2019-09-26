@@ -85,7 +85,11 @@
     }
     if (image)
     {
-        [[SKImageCache sharedImageCache] storeImage:image forKey:downloader.url.absoluteString];
+        //Store the image in the cache
+        [[SKImageCache sharedImageCache] storeImage:image
+                                             forKey:downloader.url.absoluteString
+                                          imageData:downloader.imageData
+                                             toDisk:YES];
     }
     else
     {

@@ -21,12 +21,15 @@ extern NSString * const SKWebImageDownloadStopNotification;
     NSURLConnection *connection;
     NSMutableData *imageData;
     id userInfo;
+    BOOL lowPriority;
 }
 @property(strong,nonatomic)NSURL *url;
 @property(weak,nonatomic)id <SKImageDownloaderDelegate>delegate;
 @property (strong,nonatomic,nullable) NSMutableData *imageData;
 @property (strong,nonatomic) id userInfo;
+@property (assign,nonatomic)BOOL lowPriority;
 
++(id)downloaderWithURL:(NSURL *)url delegate:(id <SKImageDownloaderDelegate>)delegate userInfo:(nullable id)userInfo lowPriority:(BOOL)lowPriority;
 +(id)downloaderWithURL:(NSURL *)url delegate:(id <SKImageDownloaderDelegate>)delegate userInfo:(nullable id)userInfo;
 +(id)downloaderWithURL:(NSURL *)url delegate:(id <SKImageDownloaderDelegate>)delegate;
 +(void)setMaxConcurrentDownloaders:(NSUInteger)max __attribute__((deprecated));

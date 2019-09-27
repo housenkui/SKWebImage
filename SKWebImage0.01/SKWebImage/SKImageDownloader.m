@@ -13,14 +13,13 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 @property (strong,nonatomic) NSURLConnection *connection;
 @end
 @implementation SKImageDownloader
-@synthesize url,delegate,connection,imageData,userInfo;
+@synthesize url,delegate,connection,imageData,userInfo,lowPriority;
 
 +(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate {
     
     return [[self class]downloaderWithURL:url delegate:delegate userInfo:nil];
 }
-+(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate userInfo:(nullable id)userInfo
-{
++(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate userInfo:(nullable id)userInfo lowPriority:(BOOL)lowPriority {
     if (NSClassFromString(@"SDNetworkActivityIndicator"))
     {
         id activityIndicator = [NSClassFromString(@"SDNetworkActivityIndicator") performSelector:NSSelectorFromString(@"sharedActivityIndicator")];
@@ -36,9 +35,14 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     downloader.url = url;
     downloader.delegate = delegate;
     downloader.userInfo = userInfo;
+    downloader.lowPriority = lowPriority;
     //Ensure the downloader is started from the main thread
     [downloader performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:YES];
     return downloader;
+}
++(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate userInfo:(nullable id)userInfo
+{
+    return [self downloaderWithURL:url delegate:delegate userInfo:userInfo lowPriority:NO];
 }
 + (void)setMaxConcurrentDownloaders:(NSUInteger)max {
     // NOOP
@@ -47,7 +51,9 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 - (void)start {
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30];
     self.connection = [[NSURLConnection alloc]initWithRequest:request delegate:self startImmediately:NO];
-    [connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+    if (!lowPriority) {
+        [connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+    }
     [connection start];
     
     if (connection) {

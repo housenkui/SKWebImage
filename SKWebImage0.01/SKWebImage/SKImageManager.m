@@ -41,16 +41,19 @@
 }
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed
 {
+    [self downloadWithURL:url delegate:delegate retryFailed:retryFailed lowPriority:NO];
+}
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority;
+{
     if (url == nil ||!delegate|| (!retryFailed && [failedURLs containsObject:url]))
     {
         return;
     }
     
     //Check the on-disk cache async so we don't block the main thread
-    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url", nil];
+    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:lowPriority],@"low_priority", nil];
     [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
 }
-
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
 {
         NSUInteger idx = [delegates indexOfObjectIdenticalTo:delegate];
@@ -83,12 +86,17 @@
 {
     NSURL *url = [info objectForKey:@"url"];
     id <SKWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
+    BOOL lowPriority = [[info objectForKey:@"low_priority"] boolValue];
     
     //Share the same downloader for identical URLs so we don't download the same URL several times
     SKImageDownloader *downloader = [downloaderForURL objectForKey:url];
     if (!downloader) {
-        downloader = [SKImageDownloader downloaderWithURL:url delegate:self];
+        downloader = [SKImageDownloader downloaderWithURL:url delegate:self userInfo:nil lowPriority:lowPriority];
         [downloaderForURL setObject:downloader forKey:url];
+    }
+    //If we get a normal priority request,make sure to change type since downloader is shared
+    if (!lowPriority && downloader.lowPriority) {
+        downloader.lowPriority = NO;
     }
     [delegates addObject:delegate];
     [downloaders addObject:downloader];

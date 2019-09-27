@@ -35,8 +35,13 @@
     
     return [[SKImageCache sharedImageCache]imageFromKey:url.absoluteString];
 }
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate {
-    if (url == nil || [failedURLs containsObject:url])
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate
+{
+    [self downloadWithURL:url delegate:delegate retryFailed:NO];
+}
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed
+{
+    if (url == nil ||!delegate|| (!retryFailed && [failedURLs containsObject:url]))
     {
         return;
     }
@@ -44,14 +49,6 @@
     //Check the on-disk cache async so we don't block the main thread
     NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url", nil];
     [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
-//    SKImageDownloader *downloader = [downloaderForURL objectForKey:url];
-//    if (!downloader) {
-//        downloader = [SKImageDownloader downloaderWithURL:url delegate:self];
-//        [downloaderForURL setObject:downloader forKey:url];
-//    }
-//
-//    [delegates addObject:delegate];
-//    [downloaders addObject:downloader];
 }
 
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate

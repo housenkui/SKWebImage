@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (SKImageManager *)sharedManager;
 - (UIImage *)imageWithURL:(NSURL *)url;
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate;
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed;
+
 - (void)cancelForDelegate:(id <SKWebImageManagerDelegate>)delegate;
 @end
 

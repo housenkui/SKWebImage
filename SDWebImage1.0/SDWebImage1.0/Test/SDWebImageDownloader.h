@@ -8,7 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import "SDWebImageDownloaderDelegate.h"
-#import <UIKit/UIKit.h>
+#import "SDWebImageCompat.h"
+
+extern NSString *const SDWebImageDownloadStartNotification;
+extern NSString *const SDWebImageDownloadStopNotification;
 
 @interface SDWebImageDownloader : NSObject
 {
@@ -17,12 +20,18 @@
     id<SDWebImageDownloaderDelegate> delegate;
     NSURLConnection *connection;
     NSMutableData *imageData;
+    id userInfo;
+    BOOL lowPriority;
 }
 
 @property (nonatomic, retain) NSURL *url;
 @property (nonatomic, assign) id<SDWebImageDownloaderDelegate> delegate;
 @property (nonatomic, retain) NSMutableData *imageData;
+@property (nonatomic, retain) id userInfo;
+@property (nonatomic, readwrite) BOOL lowPriority;
 
++ (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate userInfo:(id)userInfo lowPriority:(BOOL)lowPriority;
++ (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate userInfo:(id)userInfo;
 + (id)downloaderWithURL:(NSURL *)url delegate:(id<SDWebImageDownloaderDelegate>)delegate;
 - (void)start;
 - (void)cancel;

@@ -12,9 +12,11 @@
 @implementation SKImageManager
 
 - (instancetype)init {
-    if (self = [super init]) {
-        delegates = [[NSMutableArray alloc]init];
+    if (self = [super init])
+    {
+        downloadDelegates = [[NSMutableArray alloc]init];
         downloaders = [[NSMutableArray alloc]init];
+        cacheDelegates = [[NSMutableArray alloc]init];
         downloaderForURL = [[NSMutableDictionary alloc]init];
         failedURLs = [[NSMutableArray alloc]init];
     }
@@ -51,35 +53,52 @@
     }
     
     //Check the on-disk cache async so we don't block the main thread
+    [cacheDelegates addObject:delegate];
     NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:lowPriority],@"low_priority", nil];
     [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
 }
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
 {
-        NSUInteger idx = [delegates indexOfObjectIdenticalTo:delegate];
-        if (idx == NSNotFound)
-        {
-            return;
-        }
+    //Remove all instances of delegate from cacheDelegates.
+    //(removeObjectIdenticalTo:does this,despite its singular name.)
+    [cacheDelegates removeObjectIdenticalTo:delegate];
+    
+    NSUInteger idx;
+    while ((idx = [downloadDelegates indexOfObjectIdenticalTo:delegate])!= NSNotFound)
+    {
         SKImageDownloader *downloader = [downloaders objectAtIndex:idx];
-        [delegates removeObjectAtIndex:idx];
+        
+        [downloadDelegates removeObjectAtIndex:idx];
         [downloaders removeObjectAtIndex:idx];
+        
         if (![downloaders containsObject:downloader]) {
             
             //No more delegate are waiting for this download,cancel it
             [downloader cancel];
             [downloaderForURL removeObjectForKey:downloader.url];
         }
+    }
 }
 
 #pragma mark SKImageCacheDelegate
 - (void)imageCache:(SKImageCache *)imageCache didFindImage:(UIImage *)image forKey:(NSString *)key userInfo:(NSDictionary *)info
 {
     id <SKWebImageManagerDelegate>delegate = [info objectForKey:@"delegate"];
+    
+    NSUInteger idx = [cacheDelegates indexOfObjectIdenticalTo:delegate];
+    if (idx == NSNotFound)
+    {
+        //Request has since been canceled
+        return;
+    }
     if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
     {
         [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
     }
+    //Remove one instance of delegate from the array,
+    //not all of them (as /removeObjectIndentical:would)
+    //in case multiple requests are issued.
+    [cacheDelegates removeObjectAtIndex:idx];
 }
 
 - (void)imageCache:(SKImageCache *)imageCache didNotFindImageForKey:(NSString *)key userInfo:(NSDictionary *)info
@@ -87,6 +106,14 @@
     NSURL *url = [info objectForKey:@"url"];
     id <SKWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
     BOOL lowPriority = [[info objectForKey:@"low_priority"] boolValue];
+    
+    NSUInteger idx = [cacheDelegates indexOfObjectIdenticalTo:delegate];
+    if (idx == NSNotFound)
+    {
+        //Request has since been canceled
+        return;
+    }
+    [cacheDelegates removeObjectAtIndex:idx];
     
     //Share the same downloader for identical URLs so we don't download the same URL several times
     SKImageDownloader *downloader = [downloaderForURL objectForKey:url];
@@ -99,7 +126,7 @@
     {
         downloader.lowPriority = NO;
     }
-    [delegates addObject:delegate];
+    [downloadDelegates addObject:delegate];
     [downloaders addObject:downloader];
 }
 
@@ -113,7 +140,7 @@
         SKImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
         if (aDownloader == downloader)
         {
-            id <SKWebImageManagerDelegate> delegate = [delegates objectAtIndex:idx];
+            id <SKWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:idx];
             
             if (image)
             {
@@ -131,7 +158,7 @@
             }
             
             [downloaders removeObjectAtIndex:idx];
-            [delegates removeObjectAtIndex:idx];
+            [downloadDelegates removeObjectAtIndex:idx];
         }
     }
     if (image)
@@ -158,12 +185,12 @@
     {
         SKImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
         if (aDownloader == downloader) {
-            id <SKWebImageManagerDelegate> delegate = [delegates objectAtIndex:idx];
+            id <SKWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:idx];
             if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:)]) {
                 [delegate performSelector:@selector(webImageManager:didFailWithError:) withObject:self withObject:error];
             }
             [downloaders removeObjectAtIndex:idx];
-            [delegates removeObjectAtIndex:idx];
+            [downloadDelegates removeObjectAtIndex:idx];
         }
     }
     [downloaderForURL removeObjectForKey:downloader.url];

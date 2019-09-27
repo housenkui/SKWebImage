@@ -43,6 +43,7 @@
 		EF37653E23376FB600151832 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EF37653F23376FB600151832 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EFB7D4E6233E315A00BC5118 /* SDImageCacheDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageCacheDelegate.h; sourceTree = "<group>"; };
+		EFB7D4EB233E58A800BC5118 /* SDWebImageCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageCompat.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +97,7 @@
 				EF33E3B92337707700FC7F4B /* SDImageCache.h */,
 				EF33E3BA2337707700FC7F4B /* SDImageCache.m */,
 				EFB7D4E6233E315A00BC5118 /* SDImageCacheDelegate.h */,
+				EFB7D4EB233E58A800BC5118 /* SDWebImageCompat.h */,
 				EF33E3AF2337706C00FC7F4B /* SDWebImageDownloader.h */,
 				EF33E3B32337706C00FC7F4B /* SDWebImageDownloader.m */,
 				EF33E3AE2337706C00FC7F4B /* SDWebImageDownloaderDelegate.h */,

@@ -15,8 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SKImageManager : NSObject<SKImageDownloaderDelegate,SKImageCacheDelegate>
 {
-    NSMutableArray *delegates;
+    NSMutableArray *downloadDelegates;
     NSMutableArray *downloaders;
+    NSMutableArray *cacheDelegates;
     NSMutableDictionary *downloaderForURL;
     NSMutableArray *failedURLs;
 }

@@ -105,10 +105,22 @@
         if (aDownloader == downloader)
         {
             id <SKWebImageManagerDelegate> delegate = [delegates objectAtIndex:idx];
-            if (image && [delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
+            
+            if (image)
             {
-                [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
+                if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
+                {
+                    [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
+                }
             }
+            else
+            {
+                if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:)])
+                {
+                    [delegate performSelector:@selector(webImageManager:didFailWithError:) withObject:self withObject:nil];
+                }
+            }
+            
             [downloaders removeObjectAtIndex:idx];
             [delegates removeObjectAtIndex:idx];
         }
@@ -128,6 +140,23 @@
     }
     
     //release the downloader
+    [downloaderForURL removeObjectForKey:downloader.url];
+}
+
+- (void)imageDownloader:(SKImageDownloader *)downloader didFailWithError:(NSError *)error
+{
+    for (NSInteger idx = downloaders.count - 1; idx >= 0; idx--)
+    {
+        SKImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
+        if (aDownloader == downloader) {
+            id <SKWebImageManagerDelegate> delegate = [delegates objectAtIndex:idx];
+            if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:)]) {
+                [delegate performSelector:@selector(webImageManager:didFailWithError:) withObject:self withObject:error];
+            }
+            [downloaders removeObjectAtIndex:idx];
+            [delegates removeObjectAtIndex:idx];
+        }
+    }
     [downloaderForURL removeObjectForKey:downloader.url];
 }
 @end

@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SKImageCache : NSObject
 {
-    NSMutableDictionary *memCache,*storeDataQueue;
+    NSMutableDictionary *memCache;
     NSString *diskCachePath;
     NSOperationQueue *cacheInQueue,*cacheOutQueue;
 }

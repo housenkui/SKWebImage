@@ -17,8 +17,6 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
         memCache = [[NSMutableDictionary alloc]init];
         
         //Init the disk cache
-        storeDataQueue = [[NSMutableDictionary alloc]init];
-        
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         diskCachePath = [[paths objectAtIndex:0]stringByAppendingPathComponent:@"SKImageCache"];
         if (![[NSFileManager defaultManager]fileExistsAtPath:diskCachePath]) {
@@ -73,17 +71,16 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     return [diskCachePath stringByAppendingPathComponent:filename];
 }
 #pragma mark --存储到硬盘中
-- (void)storeKeyToDisk:(NSString *)key {
+- (void)storeKeyWithDataToDisk:(NSArray *)keyAndData {
     
     //Can't use defaultManager another thread
     NSFileManager *fileManager = [[NSFileManager alloc]init];
-    NSData *data = [storeDataQueue objectForKey:key];
+    
+    NSString *key = [keyAndData objectAtIndex:0];
+    NSData *data = [keyAndData count] > 1 ? [keyAndData objectAtIndex:1]:nil;
+    
     if (data) {
         [fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
-        @synchronized (storeDataQueue)
-        {
-            [storeDataQueue removeObjectForKey:key];
-        }
     }
     else{
         //If no data representation given,convert the UIImage in JPEG and store it
@@ -135,9 +132,18 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
         return;
     }
     [memCache setObject:image forKey:key];
-    if (toDisk) {
-        [storeDataQueue setObject:data forKey:key];
-        NSInvocationOperation *invocationOperation = [[NSInvocationOperation alloc]initWithTarget:self selector:@selector(storeKeyToDisk:) object:key];
+    if (toDisk)
+    {
+        NSArray *keyWithData;
+        if (data)
+        {
+            keyWithData = [NSArray arrayWithObjects:key,data, nil];
+        }
+        else
+        {
+            keyWithData = [NSArray arrayWithObjects:key, nil];
+        }
+        NSInvocationOperation *invocationOperation = [[NSInvocationOperation alloc]initWithTarget:self selector:@selector(storeKeyWithDataToDisk:) object:keyWithData];
         [cacheInQueue addOperation:invocationOperation];
         
     }

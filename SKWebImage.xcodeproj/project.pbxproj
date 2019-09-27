@@ -67,6 +67,7 @@
 		EF37651E23376F7500151832 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EF37651F23376F7500151832 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EFB7D4E7233E31D900BC5118 /* SKImageCacheDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKImageCacheDelegate.h; sourceTree = "<group>"; };
+		EFB7D4E8233E474700BC5118 /* SKWebImageCompat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKWebImageCompat.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +135,7 @@
 				EF33E3BF2337718500FC7F4B /* SKImageCache.h */,
 				EF33E3C02337718500FC7F4B /* SKImageCache.m */,
 				EFB7D4E7233E31D900BC5118 /* SKImageCacheDelegate.h */,
+				EFB7D4E8233E474700BC5118 /* SKWebImageCompat.h */,
 				EF33E3C223377C7200FC7F4B /* SKImageDownloader.h */,
 				EF33E3C323377C7200FC7F4B /* SKImageDownloader.m */,
 				EF33E3C523377CC900FC7F4B /* SKImageDownloaderDelegate.h */,

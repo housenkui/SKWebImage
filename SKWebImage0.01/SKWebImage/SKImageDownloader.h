@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "SKImageDownloaderDelegate.h"
+#import "SKWebImageCompat.h"
 NS_ASSUME_NONNULL_BEGIN
 extern NSString * const SKWebImageDownloadStartNotification;
 extern NSString * const SKWebImageDownloadStopNotification;

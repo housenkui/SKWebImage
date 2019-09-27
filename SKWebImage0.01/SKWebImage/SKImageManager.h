@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "SKWebImageCompat.h"
 #import "SKWebImageManagerDelegate.h"
 #import "SKImageDownloaderDelegate.h"
 #import "SKImageCacheDelegate.h"

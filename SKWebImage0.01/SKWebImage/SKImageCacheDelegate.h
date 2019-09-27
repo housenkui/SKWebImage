@@ -6,8 +6,7 @@
 //  Copyright © 2019 侯森魁. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
+#import "SKWebImageCompat.h"
 NS_ASSUME_NONNULL_BEGIN
 @class SKImageCache;
 @protocol SKImageCacheDelegate <NSObject>

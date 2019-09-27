@@ -7,7 +7,7 @@
 //
 
 
-#import <UIKit/UIkit.h>
+#import "SKWebImageCompat.h"
 #import "SKWebImageManagerDelegate.h"
 NS_ASSUME_NONNULL_BEGIN
 

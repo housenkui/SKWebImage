@@ -4,7 +4,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */ 
+ */
 
 #import "UIImageView+WebCache.h"
 #import "SDWebImageManager.h"
@@ -23,21 +23,17 @@
     // Remove in progress downloader from queue
     [manager cancelForDelegate:self];
 
-    UIImage *cachedImage = [manager imageWithURL:url];
+    self.image = placeholder;
 
-    if (cachedImage)
+    if (url)
     {
-        self.image = cachedImage;
-    }
-    else
-    {
-        if (placeholder)
-        {
-            self.image = placeholder;
-        }
-
         [manager downloadWithURL:url delegate:self];
     }
+}
+
+- (void)cancelCurrentImageLoad
+{
+    [[SDWebImageManager sharedManager] cancelForDelegate:self];
 }
 
 - (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image

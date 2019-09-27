@@ -25,6 +25,7 @@
     static SKImageManager *instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        NSLog(@"onceToken = %ld",onceToken);
         instance = [SKImageManager new];
     });
     return instance;
@@ -39,14 +40,18 @@
     {
         return;
     }
-    SKImageDownloader *downloader = [downloaderForURL objectForKey:url];
-    if (!downloader) {
-        downloader = [SKImageDownloader downloaderWithURL:url delegate:self];
-        [downloaderForURL setObject:downloader forKey:url];
-    }
-
-    [delegates addObject:delegate];
-    [downloaders addObject:downloader];
+    
+    //Check the on-disk cache async so we don't block the main thread
+    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url", nil];
+    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
+//    SKImageDownloader *downloader = [downloaderForURL objectForKey:url];
+//    if (!downloader) {
+//        downloader = [SKImageDownloader downloaderWithURL:url delegate:self];
+//        [downloaderForURL setObject:downloader forKey:url];
+//    }
+//
+//    [delegates addObject:delegate];
+//    [downloaders addObject:downloader];
 }
 
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
@@ -67,8 +72,36 @@
         }
 }
 
+#pragma mark SKImageCacheDelegate
+- (void)imageCache:(SKImageCache *)imageCache didFindImage:(UIImage *)image forKey:(NSString *)key userInfo:(NSDictionary *)info
+{
+    id <SKWebImageManagerDelegate>delegate = [info objectForKey:@"delegate"];
+    if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
+    {
+        [delegate performSelector:@selector(webImageManager:didFinishWithImage:) withObject:self withObject:image];
+    }
+}
+
+- (void)imageCache:(SKImageCache *)imageCache didNotFindImageForKey:(NSString *)key userInfo:(NSDictionary *)info
+{
+    NSURL *url = [info objectForKey:@"url"];
+    id <SKWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
+    
+    //Share the same downloader for identical URLs so we don't download the same URL several times
+    SKImageDownloader *downloader = [downloaderForURL objectForKey:url];
+    if (!downloader) {
+        downloader = [SKImageDownloader downloaderWithURL:url delegate:self];
+        [downloaderForURL setObject:downloader forKey:url];
+    }
+    [delegates addObject:delegate];
+    [downloaders addObject:downloader];
+}
+
+#pragma mark --SKImageDownloaderDelegate
+
 - (void)imageDownloader:(SKImageDownloader *)downloader didFinishWithImage:(UIImage *)image
 {
+    //notify all the delegates with this downloader
     for (NSInteger idx = [downloaders count] - 1; idx >= 0; idx --)
     {
         SKImageDownloader *aDownloader = [downloaders objectAtIndex:idx];

@@ -4,13 +4,14 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */ 
+ */
 
 #import <UIKit/UIKit.h>
 #import "SDWebImageDownloaderDelegate.h"
 #import "SDWebImageManagerDelegate.h"
+#import "SDImageCacheDelegate.h"
 
-@interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate>
+@interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate, SDImageCacheDelegate>
 {
     NSMutableArray *delegates;
     NSMutableArray *downloaders;

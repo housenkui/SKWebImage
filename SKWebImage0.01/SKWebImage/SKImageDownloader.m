@@ -68,7 +68,6 @@
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
         UIImage *image = [[UIImage alloc]initWithData:imageData];
-        self.imageData = nil;
         [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
     }
 }

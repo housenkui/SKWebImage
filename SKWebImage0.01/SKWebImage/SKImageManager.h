@@ -10,9 +10,10 @@
 #import <UIKit/UIKit.h>
 #import "SKWebImageManagerDelegate.h"
 #import "SKImageDownloaderDelegate.h"
+#import "SKImageCacheDelegate.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SKImageManager : NSObject<SKImageDownloaderDelegate>
+@interface SKImageManager : NSObject<SKImageDownloaderDelegate,SKImageCacheDelegate>
 {
     NSMutableArray *delegates;
     NSMutableArray *downloaders;

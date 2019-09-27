@@ -8,21 +8,24 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "SKImageCacheDelegate.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SKImageCache : NSObject
 {
     NSMutableDictionary *memCache,*storeDataQueue;
     NSString *diskCachePath;
-    NSOperationQueue *cacheInQueue;
+    NSOperationQueue *cacheInQueue,*cacheOutQueue;
 }
 + (SKImageCache *)sharedImageCache;
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key;
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk;
-- (void)storeImage:(UIImage *)image forKey:(NSString *)key imageData:(NSData *)data toDisk:(BOOL)toDisk;
+- (void)storeImage:(UIImage *)image forKey:(NSString *)key imageData:(nullable NSData *)data toDisk:(BOOL)toDisk;
 
 - (UIImage *)imageFromKey:(NSString *)key;
 - (UIImage *)imageFromKey:(NSString *)key fromDisk:(BOOL)fromDisk;
+- (void)queryDiskCacheForKey:(NSString *)key delegate:(id <SKImageCacheDelegate>) delegate userInfo:(NSDictionary *)info;
+
 - (void)removeImageForKey:(NSString *)key;
 - (void)clearMemory;
 - (void)clearDisk;

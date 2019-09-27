@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+
 NS_ASSUME_NONNULL_BEGIN
 @class SKImageDownloader;
 @protocol SKImageDownloaderDelegate <NSObject>

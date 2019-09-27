@@ -95,7 +95,8 @@
         [downloaderForURL setObject:downloader forKey:url];
     }
     //If we get a normal priority request,make sure to change type since downloader is shared
-    if (!lowPriority && downloader.lowPriority) {
+    if (!lowPriority && downloader.lowPriority)
+    {
         downloader.lowPriority = NO;
     }
     [delegates addObject:delegate];

@@ -89,12 +89,13 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
         //This trick is more CPU/memory intensive and doesn't preserve alpha channel
         UIImage *image = [self imageFromKey:key fromDisk:YES];
         if (image) {
-#if !TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
+            [fileManager createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
+#else
             NSArray*  representations  = [image representations];
             NSData* jpegData = [NSBitmapImageRep representationOfImageRepsInArray: representations usingType: NSJPEGFileType properties:nil];
             [fileManager createFileAtPath:[self cachePathForKey:key] contents:jpegData attributes:nil];
-#else
-            [fileManager createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
+
 #endif
         }
     }

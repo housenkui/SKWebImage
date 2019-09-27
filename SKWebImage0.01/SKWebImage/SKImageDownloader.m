@@ -17,7 +17,7 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 
 +(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate {
     
-    return [[self class]downloaderWithURL:url delegate:delegate userInfo:nil];
+    return [self downloaderWithURL:url delegate:delegate userInfo:nil];
 }
 +(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate userInfo:(nullable id)userInfo lowPriority:(BOOL)lowPriority {
     if (NSClassFromString(@"SDNetworkActivityIndicator"))

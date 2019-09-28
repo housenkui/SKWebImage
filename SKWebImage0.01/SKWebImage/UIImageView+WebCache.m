@@ -7,7 +7,7 @@
 //
 
 #import "UIImageView+WebCache.h"
-#import "SKImageManager.h"
+
 @implementation UIImageView (WebCache)
 - (void)setImageWithURL:(NSURL *)url
 {
@@ -15,6 +15,11 @@
 }
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder
+{
+    
+    [self setImageWithURL:url placeholderImage:placeholder options:0];
+}
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SKWebImageOptions)options
 {
     SKImageManager *manager = [SKImageManager sharedManager];
     
@@ -24,7 +29,7 @@
     
     if (url)
     {
-      [manager downloadWithURL:url delegate:self];
+        [manager downloadWithURL:url delegate:self options:options];
     }
 }
 - (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image{

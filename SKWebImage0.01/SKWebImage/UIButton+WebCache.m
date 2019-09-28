@@ -29,7 +29,7 @@
 }
 - (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image{
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self setImage:placeholder forState:UIControlStateNormal];
+        [self setImage:image forState:UIControlStateNormal];
     });
 }
 

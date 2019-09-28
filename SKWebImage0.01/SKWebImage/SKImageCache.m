@@ -137,12 +137,10 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     if (!image || !key) {
         return;
     }
-    if (toDisk && !data) {
-        return;
-    }
     [memCache setObject:image forKey:key];
     if (toDisk)
     {
+        if (!data) return;
         NSArray *keyWithData;
         if (data)
         {

@@ -37,26 +37,43 @@
     
     return [[SKImageCache sharedImageCache]imageFromKey:url.absoluteString];
 }
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate
-{
-    [self downloadWithURL:url delegate:delegate retryFailed:NO];
-}
+
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed
 {
-    [self downloadWithURL:url delegate:delegate retryFailed:retryFailed lowPriority:NO];
+    [self downloadWithURL:url delegate:delegate options:(retryFailed ? SKWebImageRetryFailed : 0)];
 }
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority;
 {
-    if (url == nil ||!delegate|| (!retryFailed && [failedURLs containsObject:url]))
+    
+    SKWebImageOptions options = 0;
+    if (retryFailed) options |= SKWebImageRetryFailed;
+    if (lowPriority) {
+        options |= SKWebImageLowPriority;
+    }
+    [self downloadWithURL:url delegate:delegate options:options];
+}
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate
+{
+    [self downloadWithURL:url delegate:delegate options:0];
+}
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate options:(SKWebImageOptions)options
+{
+    
+    // Very common mistake is to send the URL using NSString object instead of NSURL. For some strange reason, XCode won't
+    // throw any warning for this type mismatch. Here we failsafe this error by allowing URLs to be passed as NSString.
+    if ([url isKindOfClass:NSString.class])
+    {
+        url = [NSURL URLWithString:(NSString *)url];
+    }
+    if (url == nil ||!delegate|| (!(options &&SKWebImageRetryFailed)&& [failedURLs containsObject:url]))
     {
         return;
     }
     
     //Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
-    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:lowPriority],@"low_priority", nil];
-    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
-}
+    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:options],@"options", nil];
+    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];}
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
 {
     //Remove all instances of delegate from cacheDelegates.
@@ -105,7 +122,7 @@
 {
     NSURL *url = [info objectForKey:@"url"];
     id <SKWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
-    BOOL lowPriority = [[info objectForKey:@"low_priority"] boolValue];
+    SKWebImageOptions options = [[info objectForKey:@"options"] boolValue];
     
     NSUInteger idx = [cacheDelegates indexOfObjectIdenticalTo:delegate];
     if (idx == NSNotFound)
@@ -118,13 +135,15 @@
     //Share the same downloader for identical URLs so we don't download the same URL several times
     SKImageDownloader *downloader = [downloaderForURL objectForKey:url];
     if (!downloader) {
-        downloader = [SKImageDownloader downloaderWithURL:url delegate:self userInfo:nil lowPriority:lowPriority];
+        downloader = [SKImageDownloader downloaderWithURL:url delegate:self userInfo:nil lowPriority:(options & SKWebImageLowPriority)];
         [downloaderForURL setObject:downloader forKey:url];
     }
     //If we get a normal priority request,make sure to change type since downloader is shared
-    if (!lowPriority && downloader.lowPriority)
+    else
     {
-        downloader.lowPriority = NO;
+        //Reuse shared downloader
+        downloader.userInfo = info;
+        downloader.lowPriority = (options & SKWebImageLowPriority);
     }
     [downloadDelegates addObject:delegate];
     [downloaders addObject:downloader];
@@ -134,6 +153,7 @@
 
 - (void)imageDownloader:(SKImageDownloader *)downloader didFinishWithImage:(UIImage *)image
 {
+    SKWebImageOptions options = [[downloader.userInfo objectForKey:@"options"]intValue];
     //notify all the delegates with this downloader
     for (NSInteger idx = [downloaders count] - 1; idx >= 0; idx --)
     {
@@ -167,9 +187,9 @@
         [[SKImageCache sharedImageCache] storeImage:image
                                              forKey:downloader.url.absoluteString
                                           imageData:downloader.imageData
-                                             toDisk:YES];
+                                             toDisk:!(options & SKWebImageCacheMemoryOnly)];
     }
-    else
+    else if (!(options & SKWebImageRetryFailed))
     {
         //The image can't be downloaded from this URL,mark the URL as failed so we won't try and fail again and again
         [failedURLs addObject:downloader.url];

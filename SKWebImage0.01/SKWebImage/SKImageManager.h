@@ -12,6 +12,12 @@
 #import "SKImageDownloaderDelegate.h"
 #import "SKImageCacheDelegate.h"
 NS_ASSUME_NONNULL_BEGIN
+typedef enum
+{
+    SKWebImageRetryFailed = 1,
+    SKWebImageLowPriority,
+    SKWebImageCacheMemoryOnly
+}SKWebImageOptions;
 
 @interface SKImageManager : NSObject<SKImageDownloaderDelegate,SKImageCacheDelegate>
 {
@@ -24,8 +30,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (SKImageManager *)sharedManager;
 - (UIImage *)imageWithURL:(NSURL *)url;
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate;
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed;
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority;
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate options:(SKWebImageOptions)options;
+
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed __attribute__ ((deprecated));
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority __attribute__ ((deprecated));;
 
 - (void)cancelForDelegate:(id <SKWebImageManagerDelegate>)delegate;
 @end

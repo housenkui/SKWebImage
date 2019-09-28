@@ -9,12 +9,15 @@
 
 #import "SKWebImageCompat.h"
 #import "SKWebImageManagerDelegate.h"
+#import "SKImageManager.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UIImageView (WebCache) <SKWebImageManagerDelegate>
 
 - (void)setImageWithURL:(NSURL *)url;
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(nullable UIImage *)placeholder;
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SKWebImageOptions)options;
+
 - (void)cancelCurrentImageLoad;
 @end
 

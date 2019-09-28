@@ -14,9 +14,9 @@
 NS_ASSUME_NONNULL_BEGIN
 typedef enum
 {
-    SKWebImageRetryFailed = 1,
-    SKWebImageLowPriority,
-    SKWebImageCacheMemoryOnly
+    SKWebImageRetryFailed = 1 << 0,
+    SKWebImageLowPriority = 1 << 1,
+    SKWebImageCacheMemoryOnly = 1 << 2
 }SKWebImageOptions;
 
 @interface SKImageManager : NSObject<SKImageDownloaderDelegate,SKImageCacheDelegate>

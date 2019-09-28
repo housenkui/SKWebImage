@@ -18,6 +18,7 @@
 		EF37653A23376FB600151832 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF37653923376FB600151832 /* Assets.xcassets */; };
 		EF37653D23376FB600151832 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EF37653B23376FB600151832 /* LaunchScreen.storyboard */; };
 		EF37654023376FB600151832 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EF37653F23376FB600151832 /* main.m */; };
+		EFB7D4F1233F8A4E00BC5118 /* SDWebImageDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D4F0233F8A4E00BC5118 /* SDWebImageDecoder.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,8 @@
 		EF37653F23376FB600151832 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EFB7D4E6233E315A00BC5118 /* SDImageCacheDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageCacheDelegate.h; sourceTree = "<group>"; };
 		EFB7D4EB233E58A800BC5118 /* SDWebImageCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageCompat.h; sourceTree = "<group>"; };
+		EFB7D4EF233F8A4E00BC5118 /* SDWebImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageDecoder.h; sourceTree = "<group>"; };
+		EFB7D4F0233F8A4E00BC5118 /* SDWebImageDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDecoder.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +101,8 @@
 				EF33E3BA2337707700FC7F4B /* SDImageCache.m */,
 				EFB7D4E6233E315A00BC5118 /* SDImageCacheDelegate.h */,
 				EFB7D4EB233E58A800BC5118 /* SDWebImageCompat.h */,
+				EFB7D4EF233F8A4E00BC5118 /* SDWebImageDecoder.h */,
+				EFB7D4F0233F8A4E00BC5118 /* SDWebImageDecoder.m */,
 				EF33E3AF2337706C00FC7F4B /* SDWebImageDownloader.h */,
 				EF33E3B32337706C00FC7F4B /* SDWebImageDownloader.m */,
 				EF33E3AE2337706C00FC7F4B /* SDWebImageDownloaderDelegate.h */,
@@ -185,6 +190,7 @@
 				EF33E3B42337706C00FC7F4B /* SDWebImageManager.m in Sources */,
 				EF33E3B82337707300FC7F4B /* UIImageView+WebCache.m in Sources */,
 				EF37654023376FB600151832 /* main.m in Sources */,
+				EFB7D4F1233F8A4E00BC5118 /* SDWebImageDecoder.m in Sources */,
 				EF37653223376FB500151832 /* AppDelegate.m in Sources */,
 				EF33E3B52337706C00FC7F4B /* SDWebImageDownloader.m in Sources */,
 				EF33E3BB2337707700FC7F4B /* SDImageCache.m in Sources */,

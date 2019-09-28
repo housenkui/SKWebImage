@@ -7,7 +7,12 @@
  */
 
 #import "SDImageCache.h"
+#import "SDWebImageDecoder.h"
 #import <CommonCrypto/CommonDigest.h>
+
+#ifdef ENABLE_SDWEBIMAGE_DECODER
+#import "SDWebImageDecoder.h"
+#endif
 
 static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
 
@@ -42,6 +47,7 @@ static SDImageCache *instance;
         cacheOutQueue = [[NSOperationQueue alloc] init];
         cacheOutQueue.maxConcurrentOperationCount = 1;
 
+#if TARGET_OS_IPHONE
         // Subscribe to app events
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(clearMemory)
@@ -53,7 +59,7 @@ static SDImageCache *instance;
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
 
-        #ifdef __IPHONE_4_0
+#ifdef __IPHONE_4_0
         UIDevice *device = [UIDevice currentDevice];
         if ([device respondsToSelector:@selector(isMultitaskingSupported)] && device.multitaskingSupported)
         {
@@ -63,7 +69,8 @@ static SDImageCache *instance;
                                                          name:UIApplicationDidEnterBackgroundNotification
                                                        object:nil];
         }
-        #endif
+#endif
+#endif
     }
 
     return self;
@@ -98,7 +105,7 @@ static SDImageCache *instance;
 {
     const char *str = [key UTF8String];
     unsigned char r[CC_MD5_DIGEST_LENGTH];
-    CC_MD5(str, strlen(str), r);
+    CC_MD5(str, (CC_LONG)strlen(str), r);
     NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];
 
@@ -124,7 +131,13 @@ static SDImageCache *instance;
         UIImage *image = [[self imageFromKey:key fromDisk:YES] retain]; // be thread safe with no lock
         if (image)
         {
+#if TARGET_OS_IPHONE
             [fileManager createFileAtPath:[self cachePathForKey:key] contents:UIImageJPEGRepresentation(image, (CGFloat)1.0) attributes:nil];
+#else
+            NSArray*  representations  = [image representations];
+            NSData* jpegData = [NSBitmapImageRep representationOfImageRepsInArray: representations usingType: NSJPEGFileType properties:nil];
+            [fileManager createFileAtPath:[self cachePathForKey:key] contents:jpegData attributes:nil];
+#endif
             [image release];
         }
     }
@@ -165,6 +178,13 @@ static SDImageCache *instance;
     UIImage *image = [[[UIImage alloc] initWithContentsOfFile:[self cachePathForKey:key]] autorelease];
     if (image)
     {
+#ifdef ENABLE_SDWEBIMAGE_DECODER
+        UIImage *decodedImage = [UIImage decodedImageWithImage:image];
+        if (decodedImage)
+        {
+            image = decodedImage;
+        }
+#endif
         [mutableArguments setObject:image forKey:@"image"];
     }
 
@@ -180,15 +200,11 @@ static SDImageCache *instance;
         return;
     }
 
-    if (toDisk && !data)
-    {
-        return;
-    }
-
     [memCache setObject:image forKey:key];
 
     if (toDisk)
     {
+        if (!data) return;
         NSArray *keyWithData;
         if (data)
         {

@@ -7,6 +7,7 @@
 //
 
 #import "SKImageCache.h"
+#import "SKImageDecoder.h"
 #import <CommonCrypto/CommonDigest.h>
 static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
 @implementation SKImageCache
@@ -127,6 +128,12 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     NSMutableDictionary *mutableArguments = [arguments mutableCopy];
     UIImage *image = [UIImage imageWithContentsOfFile:[self cachePathForKey:key]];
     if (image) {
+//#ifdef ENABLE_SKWEBIMAGE_DECODER
+        UIImage *decodedImage = [UIImage decodedImageWithImage:image];
+        if (decodedImage) {
+            image = decodedImage;
+        }
+//#endif
         [mutableArguments setObject:image forKey:@"image"];
     }
     [self performSelectorOnMainThread:@selector(notifyDelegate:) withObject:mutableArguments waitUntilDone:NO];

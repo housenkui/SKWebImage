@@ -7,6 +7,12 @@
 //
 
 #import "SKImageDownloader.h"
+
+//#ifdef ENABLE_SDWEBIMAGE_DECODER
+#import "SKImageDecoder.h"
+@interface SKImageDownloader (ImageDecoder)<SKWebImageDecoderDelegate>
+@end
+//#endif
 NSString * const SKWebImageDownloadStartNotification = @"SKWebImageDownloadStartNotification";
 NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNotification";
 @interface SKImageDownloader ()
@@ -96,7 +102,11 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
         UIImage *image = [[UIImage alloc]initWithData:imageData];
+#ifdef ENABLE_SDWEBIMAGE_DECODER
+        [[SKImageDecoder sharedImageDecoder]decodeImage:image withDelegate:self userInfo:nil];
+#else
         [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+#endif
     }
 }
 
@@ -110,6 +120,14 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     self.connection = nil;
     self.imageData = nil;
 }
+#pragma mark SKWebImageDecoderDelegate
+#ifdef ENABLE_SDWEBIMAGE_DECODER
+
+- (void)imageDecoder:(SKImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)userInfo
+{
+    [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
+}
+#endif
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];

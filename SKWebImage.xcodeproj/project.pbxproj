@@ -27,6 +27,7 @@
 		EF37651D23376F7500151832 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EF37651B23376F7500151832 /* LaunchScreen.storyboard */; };
 		EF37652023376F7500151832 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EF37651F23376F7500151832 /* main.m */; };
 		EFB7D4EE233F816000BC5118 /* UIButton+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D4ED233F816000BC5118 /* UIButton+WebCache.m */; };
+		EFB7D4F4233F8B5800BC5118 /* SKImageDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D4F3233F8B5800BC5118 /* SKImageDecoder.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,6 +72,8 @@
 		EFB7D4E8233E474700BC5118 /* SKWebImageCompat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKWebImageCompat.h; sourceTree = "<group>"; };
 		EFB7D4EC233F816000BC5118 /* UIButton+WebCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIButton+WebCache.h"; sourceTree = "<group>"; };
 		EFB7D4ED233F816000BC5118 /* UIButton+WebCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIButton+WebCache.m"; sourceTree = "<group>"; };
+		EFB7D4F2233F8B5800BC5118 /* SKImageDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKImageDecoder.h; sourceTree = "<group>"; };
+		EFB7D4F3233F8B5800BC5118 /* SKImageDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKImageDecoder.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +142,8 @@
 				EF33E3C02337718500FC7F4B /* SKImageCache.m */,
 				EFB7D4E7233E31D900BC5118 /* SKImageCacheDelegate.h */,
 				EFB7D4E8233E474700BC5118 /* SKWebImageCompat.h */,
+				EFB7D4F2233F8B5800BC5118 /* SKImageDecoder.h */,
+				EFB7D4F3233F8B5800BC5118 /* SKImageDecoder.m */,
 				EF33E3C223377C7200FC7F4B /* SKImageDownloader.h */,
 				EF33E3C323377C7200FC7F4B /* SKImageDownloader.m */,
 				EF33E3C523377CC900FC7F4B /* SKImageDownloaderDelegate.h */,
@@ -292,6 +297,7 @@
 				EFB7D4EE233F816000BC5118 /* UIButton+WebCache.m in Sources */,
 				EF37651223376F7300151832 /* AppDelegate.m in Sources */,
 				EF33E3C82337800100FC7F4B /* SKImageManager.m in Sources */,
+				EFB7D4F4233F8B5800BC5118 /* SKImageDecoder.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

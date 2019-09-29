@@ -21,6 +21,7 @@
 		EFB7D5122340B3F600BC5118 /* SDWebImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D5092340B3F600BC5118 /* SDWebImageManager.m */; };
 		EFB7D5132340B3F600BC5118 /* UIImageView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D50A2340B3F600BC5118 /* UIImageView+WebCache.m */; };
 		EFB7D5142340B3F600BC5118 /* SDImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D50D2340B3F600BC5118 /* SDImageCache.m */; };
+		EFB7D51B2340D43700BC5118 /* MKAnnotationView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D5192340D43700BC5118 /* MKAnnotationView+WebCache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +54,8 @@
 		EFB7D50B2340B3F600BC5118 /* SDImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageCache.h; sourceTree = "<group>"; };
 		EFB7D50C2340B3F600BC5118 /* UIImageView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+WebCache.h"; sourceTree = "<group>"; };
 		EFB7D50D2340B3F600BC5118 /* SDImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDImageCache.m; sourceTree = "<group>"; };
+		EFB7D5192340D43700BC5118 /* MKAnnotationView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+WebCache.m"; sourceTree = "<group>"; };
+		EFB7D51A2340D43700BC5118 /* MKAnnotationView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+WebCache.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +105,8 @@
 		EF37655023376FC000151832 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				EFB7D51A2340D43700BC5118 /* MKAnnotationView+WebCache.h */,
+				EFB7D5192340D43700BC5118 /* MKAnnotationView+WebCache.m */,
 				EF33E3BC2337707D00FC7F4B /* README.md */,
 				EFB7D50B2340B3F600BC5118 /* SDImageCache.h */,
 				EFB7D50D2340B3F600BC5118 /* SDImageCache.m */,
@@ -197,6 +202,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EFB7D5112340B3F600BC5118 /* SDWebImageDecoder.m in Sources */,
+				EFB7D51B2340D43700BC5118 /* MKAnnotationView+WebCache.m in Sources */,
 				EFB7D5122340B3F600BC5118 /* SDWebImageManager.m in Sources */,
 				EFB7D50E2340B3F600BC5118 /* SDWebImageDownloader.m in Sources */,
 				EF37653523376FB500151832 /* ViewController.m in Sources */,

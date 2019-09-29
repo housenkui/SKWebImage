@@ -82,6 +82,23 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     }
 }
 
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    if ([(NSHTTPURLResponse *)response statusCode] >= 400)
+    {
+        [connection cancel];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:nil];
+        
+        if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)]) {
+            NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain
+                                                        code:[((NSHTTPURLResponse *)response) statusCode]
+                                                    userInfo:nil];
+            [delegate performSelector:@selector(imageDownloader:didFailWithError:) withObject:self withObject:error];
+        }
+        self.connection = nil;
+        self.imageData = nil;
+    }
+}
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
     [imageData appendData:data];

@@ -10,8 +10,16 @@
 #import "SKImageCache.h"
 #import "SKImageDownloader.h"
 #import <objc/message.h>
-@implementation SKImageManager
+typedef void (^SuccessBlock)(UIImage *image);
+typedef void (^FailureBlock)(NSError *error);
 
+@interface SKImageManager ()
+@property (nonatomic,copy) SuccessBlock successBlock;
+@property (nonatomic,copy) FailureBlock failureBlock;
+@end
+@implementation SKImageManager
+@synthesize successBlock;
+@synthesize failureBlock;
 - (instancetype)init {
     if (self = [super init])
     {
@@ -79,6 +87,12 @@
     [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
     
 }
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate options:(SKWebImageOptions)options success:(void (^)(UIImage * _Nonnull))success failure:(void (^)(NSError * _Nonnull))failure
+{
+    self.successBlock = success;
+    self.failureBlock = failure;
+    [self downloadWithURL:url delegate:delegate options:options];
+}
 
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
 {
@@ -138,6 +152,10 @@
     if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:forURL:)])
     {
         objc_msgSend(delegate,@selector(webImageManager:didFinishWithImage:forURL:),self,image,url);
+    }
+    if(self.successBlock)
+    {
+        self.successBlock(image);
     }
     //Remove one instance of delegate from the array,
     //not all of them (as /removeObjectIndentical:would)
@@ -201,6 +219,10 @@
                 {
                     objc_msgSend(delegate, @selector(webImageManager:didFinishWithImage:forURL:),self,image,downloader.url);
                 }
+                if(self.successBlock)
+                {
+                    self.successBlock(image);
+                }
             }
             else
             {
@@ -211,6 +233,10 @@
                 if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:)])
                 {
                     objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:),self,image,downloader.url);
+                }
+                if (self.failureBlock)
+                {
+                    self.failureBlock(nil);
                 }
             }
             
@@ -250,6 +276,10 @@
             if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:)])
             {
                 objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:),self,error,downloader.url);
+            }
+            if (self.failureBlock)
+            {
+                self.failureBlock(nil);
             }
             [downloaders removeObjectAtIndex:idx];
             [downloadDelegates removeObjectAtIndex:idx];

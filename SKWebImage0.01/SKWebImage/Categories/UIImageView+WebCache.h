@@ -48,6 +48,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SKWebImageOptions)options;
 
+
+/**
+ * Set the imageView `image` with an `url`.
+ *
+ * The downloand is asynchronous and cached.
+ *
+ *@param url The url for the image.
+ *@param success A block to be executed when the image request succeed This block has no return value and takes the retrieved image as argument.
+ *@param failure  A block object to be executed when the image request failed. This block has no return value and takes the error object describing the network or parsing error that occurred (may be nil).
+ */
+- (void)setImageWithURL:(NSURL *)url
+                success:(void (^)(UIImage * image))success
+                failure:(void (^)(NSError *error))failure;
+
+- (void)setImageWithURL:(NSURL *)url
+       placeholderImage:(nullable UIImage *)placeholder
+                success:(void (^)(UIImage * image))success
+                failure:(void (^)(NSError *error))failure;
+
+- (void)setImageWithURL:(NSURL *)url
+       placeholderImage:(nullable UIImage *)placeholder
+                options:(SKWebImageOptions)options
+                success:(void (^)(UIImage * image))success
+                failure:(void (^)(NSError *error))failure;;
+
+
 /**
  * Cancel the current download
  */

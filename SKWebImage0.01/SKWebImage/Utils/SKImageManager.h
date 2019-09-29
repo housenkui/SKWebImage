@@ -36,6 +36,12 @@ typedef enum
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed __attribute__ ((deprecated));
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority __attribute__ ((deprecated));;
 
+- (void)downloadWithURL:(NSURL *)url
+               delegate:(id<SKWebImageManagerDelegate>)delegate
+                options:(SKWebImageOptions)options
+                success:(void (^)(UIImage * image))success
+                failure:(void (^)(NSError *error))failure;
+
 - (void)cancelForDelegate:(id <SKWebImageManagerDelegate>)delegate;
 @end
 

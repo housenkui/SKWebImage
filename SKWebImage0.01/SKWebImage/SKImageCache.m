@@ -40,7 +40,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
                                                 selector:@selector(cleanDisk)
                                                     name:UIApplicationWillTerminateNotification
                                                   object:nil];
-#ifdef __IPHONE_4_0
+#ifdef __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_4_0
         UIDevice *device = [UIDevice currentDevice];
         if ([device respondsToSelector:@selector(isMultitaskingSupported)]) {
             [[NSNotificationCenter defaultCenter]addObserver:self

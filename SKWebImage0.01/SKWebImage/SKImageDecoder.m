@@ -73,7 +73,10 @@
 @implementation UIImage (ForceDecode)
 + (UIImage *)decodedImageWithImage:(UIImage *)image
 {
-    NSLog(@"decodedImageWithImage %@",[NSThread currentThread]);
+    //一张10M的图片在子线程解码的时间 134.863us(毫秒)
+    NSLog(@"decodedImageWithImage start %@",[NSThread currentThread]);
+    NSLog(@"-----%@---- %@-",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode]);
+
     CGImageRef imageRef =  image.CGImage;
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CGContextRef context = CGBitmapContextCreate(NULL,
@@ -97,6 +100,8 @@
     
     UIImage *decompressedImage = [[UIImage alloc]initWithCGImage:decompressedImageRef];
     CGImageRelease(decompressedImageRef);
+    NSLog(@"decodedImageWithImage end %@",[NSThread currentThread]);
+
     return decompressedImage;
 }
 

@@ -86,7 +86,9 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
     [imageData appendData:data];
-    NSLog(@"-----%@-----",[NSThread currentThread]);
+    NSLog(@"-----%@---- %@-",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode]);
+   
+
 }
 
 #pragma GCC diagnostic ignored "-Wundeclared-selector"

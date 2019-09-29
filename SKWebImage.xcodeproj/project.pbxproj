@@ -28,6 +28,7 @@
 		EF37652023376F7500151832 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EF37651F23376F7500151832 /* main.m */; };
 		EFB7D4EE233F816000BC5118 /* UIButton+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D4ED233F816000BC5118 /* UIButton+WebCache.m */; };
 		EFB7D4F4233F8B5800BC5118 /* SKImageDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D4F3233F8B5800BC5118 /* SKImageDecoder.m */; };
+		EFB7D4FA23408CE800BC5118 /* SKWebImagePrefetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D4F923408CE800BC5118 /* SKWebImagePrefetcher.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -74,6 +75,8 @@
 		EFB7D4ED233F816000BC5118 /* UIButton+WebCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIButton+WebCache.m"; sourceTree = "<group>"; };
 		EFB7D4F2233F8B5800BC5118 /* SKImageDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKImageDecoder.h; sourceTree = "<group>"; };
 		EFB7D4F3233F8B5800BC5118 /* SKImageDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKImageDecoder.m; sourceTree = "<group>"; };
+		EFB7D4F823408CE800BC5118 /* SKWebImagePrefetcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKWebImagePrefetcher.h; sourceTree = "<group>"; };
+		EFB7D4F923408CE800BC5118 /* SKWebImagePrefetcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKWebImagePrefetcher.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +153,8 @@
 				EF33E3C62337800100FC7F4B /* SKImageManager.h */,
 				EF33E3C72337800100FC7F4B /* SKImageManager.m */,
 				EF33E3C92337810500FC7F4B /* SKWebImageManagerDelegate.h */,
+				EFB7D4F823408CE800BC5118 /* SKWebImagePrefetcher.h */,
+				EFB7D4F923408CE800BC5118 /* SKWebImagePrefetcher.m */,
 				EF33E3CA233786DD00FC7F4B /* UIImageView+WebCache.h */,
 				EF33E3CB233786DD00FC7F4B /* UIImageView+WebCache.m */,
 				EFB7D4EC233F816000BC5118 /* UIButton+WebCache.h */,
@@ -295,6 +300,7 @@
 				EF33E3C423377C7200FC7F4B /* SKImageDownloader.m in Sources */,
 				EF33E3CC233786DD00FC7F4B /* UIImageView+WebCache.m in Sources */,
 				EFB7D4EE233F816000BC5118 /* UIButton+WebCache.m in Sources */,
+				EFB7D4FA23408CE800BC5118 /* SKWebImagePrefetcher.m in Sources */,
 				EF37651223376F7300151832 /* AppDelegate.m in Sources */,
 				EF33E3C82337800100FC7F4B /* SKImageManager.m in Sources */,
 				EFB7D4F4233F8B5800BC5118 /* SKImageDecoder.m in Sources */,

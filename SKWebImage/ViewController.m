@@ -30,9 +30,32 @@ static NSString *url =  @"https://avatars2.githubusercontent.com/u/5885635?s=460
     // Do any additional setup after loading the view.
     NSLog(@"viewDidLoad");
    
-    [self test];
-}
+//    [self test];
+    NSDate *date1 = [NSDate date];
+    NSLog(@"date1= %@",date1);
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        //子线程网络请求
+        NSDate *date2 = [NSDate date];
+        NSLog(@"date2= %@",date2);
+        
+        
+        [self performSelectorOnMainThread:@selector(onMainThread) withObject:nil waitUntilDone:NO];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //主线程刷新数据
+            NSDate *date3= [NSDate date];
+            NSLog(@"date3= %@",date3);
+        });
+    });
 
+}
+- (void)onMainThread
+{
+    NSDate *date4= [NSDate date];
+    NSLog(@"date4= %@",date4);
+}
 - (void)test {
     NSLog(@"%@",NSStringFromSelector(_cmd));
     
@@ -79,7 +102,7 @@ static NSString *url =  @"https://avatars2.githubusercontent.com/u/5885635?s=460
 //        }
 //    }];
     
-    [self.imageView5 setImageWithURL:[NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1568824165016&di=b48c20176874a59eddf6b3003a43d5e4&imgtype=0&src=http%3A%2F%2Fphotocdn.sohu.com%2F20160223%2Fmp60173169_1456232942601_2.jpeg"]];
+//    [self.imageView5 setImageWithURL:[NSURL URLWithString:@"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1568824165016&di=b48c20176874a59eddf6b3003a43d5e4&imgtype=0&src=http%3A%2F%2Fphotocdn.sohu.com%2F20160223%2Fmp60173169_1456232942601_2.jpeg"]];
 }
 
 @end

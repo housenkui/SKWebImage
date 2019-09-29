@@ -30,6 +30,33 @@ static NSString *url05 = @"https://www.tuchuang001.com/images/2017/05/02/1.png";
     // Do any additional setup after loading the view.
     NSLog(@"viewDidLoad");
     self.tableView.backgroundColor = [UIColor whiteColor];
+    NSDate *date1 = [NSDate date];
+    NSLog(@"date1= %@",date1);
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //记一次主线程切换到子线程的时间 157us
+        //子线程网络请求
+        NSDate *date2 = [NSDate date];
+        NSLog(@"date2= %@",date2);
+       
+        
+        //这个方法比 dispatch_async 的方法慢500us左右
+        [self performSelectorOnMainThread:@selector(onMainThread) withObject:nil waitUntilDone:NO];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //记一次子线程切换到主线程的时间 162010us (这个数值的大小和CPU的负载有关系、寄存器)
+            //记一次子线程切换到主线程的时间 151387us (这个数值的大小和CPU的负载有关系、寄存器)
+
+            //主线程刷新数据
+            NSDate *date3= [NSDate date];
+            NSLog(@"date3= %@",date3);
+        });
+    });
+
+}
+- (void)onMainThread
+{
+    NSDate *date4= [NSDate date];
+    NSLog(@"date4= %@",date4);
 }
 - (NSMutableArray *)dataArray {
     if (!_dataArray) {

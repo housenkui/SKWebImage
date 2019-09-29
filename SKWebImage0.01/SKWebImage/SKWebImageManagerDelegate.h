@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+@class UIImage;
 NS_ASSUME_NONNULL_BEGIN
 @class SKImageManager;
 @protocol SKWebImageManagerDelegate <NSObject>

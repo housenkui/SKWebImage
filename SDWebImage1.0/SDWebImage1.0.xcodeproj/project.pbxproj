@@ -19,6 +19,7 @@
 		EF37653D23376FB600151832 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EF37653B23376FB600151832 /* LaunchScreen.storyboard */; };
 		EF37654023376FB600151832 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EF37653F23376FB600151832 /* main.m */; };
 		EFB7D4F1233F8A4E00BC5118 /* SDWebImageDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D4F0233F8A4E00BC5118 /* SDWebImageDecoder.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		EFB7D4F723408C6600BC5118 /* SDWebImagePrefetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = EFB7D4F623408C6500BC5118 /* SDWebImagePrefetcher.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,8 @@
 		EFB7D4EB233E58A800BC5118 /* SDWebImageCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageCompat.h; sourceTree = "<group>"; };
 		EFB7D4EF233F8A4E00BC5118 /* SDWebImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImageDecoder.h; sourceTree = "<group>"; };
 		EFB7D4F0233F8A4E00BC5118 /* SDWebImageDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImageDecoder.m; sourceTree = "<group>"; };
+		EFB7D4F523408C6500BC5118 /* SDWebImagePrefetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWebImagePrefetcher.h; sourceTree = "<group>"; };
+		EFB7D4F623408C6500BC5118 /* SDWebImagePrefetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWebImagePrefetcher.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +112,8 @@
 				EF33E3B02337706C00FC7F4B /* SDWebImageManager.h */,
 				EF33E3B12337706C00FC7F4B /* SDWebImageManager.m */,
 				EF33E3B22337706C00FC7F4B /* SDWebImageManagerDelegate.h */,
+				EFB7D4F523408C6500BC5118 /* SDWebImagePrefetcher.h */,
+				EFB7D4F623408C6500BC5118 /* SDWebImagePrefetcher.m */,
 				EF33E3B72337707300FC7F4B /* UIImageView+WebCache.h */,
 				EF33E3B62337707300FC7F4B /* UIImageView+WebCache.m */,
 			);
@@ -186,6 +191,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EFB7D4F723408C6600BC5118 /* SDWebImagePrefetcher.m in Sources */,
 				EF37653523376FB500151832 /* ViewController.m in Sources */,
 				EF33E3B42337706C00FC7F4B /* SDWebImageManager.m in Sources */,
 				EF33E3B82337707300FC7F4B /* UIImageView+WebCache.m in Sources */,

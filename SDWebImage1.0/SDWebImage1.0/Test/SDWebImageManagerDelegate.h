@@ -7,7 +7,7 @@
  */
 
 @class SDWebImageManager;
-
+@class UIImage;
 @protocol SDWebImageManagerDelegate <NSObject>
 
 @optional

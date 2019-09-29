@@ -141,24 +141,11 @@
 		EF33E3BE2337716900FC7F4B /* SKWebImage */ = {
 			isa = PBXGroup;
 			children = (
-				EF33E3BF2337718500FC7F4B /* SKImageCache.h */,
-				EF33E3C02337718500FC7F4B /* SKImageCache.m */,
-				EFB7D4E7233E31D900BC5118 /* SKImageCacheDelegate.h */,
 				EFB7D4E8233E474700BC5118 /* SKWebImageCompat.h */,
-				EFB7D4F2233F8B5800BC5118 /* SKImageDecoder.h */,
-				EFB7D4F3233F8B5800BC5118 /* SKImageDecoder.m */,
-				EF33E3C223377C7200FC7F4B /* SKImageDownloader.h */,
-				EF33E3C323377C7200FC7F4B /* SKImageDownloader.m */,
-				EF33E3C523377CC900FC7F4B /* SKImageDownloaderDelegate.h */,
-				EF33E3C62337800100FC7F4B /* SKImageManager.h */,
-				EF33E3C72337800100FC7F4B /* SKImageManager.m */,
-				EF33E3C92337810500FC7F4B /* SKWebImageManagerDelegate.h */,
-				EFB7D4F823408CE800BC5118 /* SKWebImagePrefetcher.h */,
-				EFB7D4F923408CE800BC5118 /* SKWebImagePrefetcher.m */,
-				EF33E3CA233786DD00FC7F4B /* UIImageView+WebCache.h */,
-				EF33E3CB233786DD00FC7F4B /* UIImageView+WebCache.m */,
-				EFB7D4EC233F816000BC5118 /* UIButton+WebCache.h */,
-				EFB7D4ED233F816000BC5118 /* UIButton+WebCache.m */,
+				EFB7D5182340CD2F00BC5118 /* Categories */,
+				EFB7D5172340CD2200BC5118 /* Utils */,
+				EFB7D5162340CD1C00BC5118 /* Cache */,
+				EFB7D5152340CD1100BC5118 /* Downloader */,
 			);
 			path = SKWebImage;
 			sourceTree = "<group>";
@@ -178,6 +165,51 @@
 				EF37651F23376F7500151832 /* main.m */,
 			);
 			path = SKWebImage0.01;
+			sourceTree = "<group>";
+		};
+		EFB7D5152340CD1100BC5118 /* Downloader */ = {
+			isa = PBXGroup;
+			children = (
+				EF33E3C223377C7200FC7F4B /* SKImageDownloader.h */,
+				EF33E3C323377C7200FC7F4B /* SKImageDownloader.m */,
+				EF33E3C523377CC900FC7F4B /* SKImageDownloaderDelegate.h */,
+			);
+			path = Downloader;
+			sourceTree = "<group>";
+		};
+		EFB7D5162340CD1C00BC5118 /* Cache */ = {
+			isa = PBXGroup;
+			children = (
+				EF33E3BF2337718500FC7F4B /* SKImageCache.h */,
+				EF33E3C02337718500FC7F4B /* SKImageCache.m */,
+				EFB7D4E7233E31D900BC5118 /* SKImageCacheDelegate.h */,
+			);
+			path = Cache;
+			sourceTree = "<group>";
+		};
+		EFB7D5172340CD2200BC5118 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				EFB7D4F2233F8B5800BC5118 /* SKImageDecoder.h */,
+				EFB7D4F3233F8B5800BC5118 /* SKImageDecoder.m */,
+				EF33E3C62337800100FC7F4B /* SKImageManager.h */,
+				EF33E3C72337800100FC7F4B /* SKImageManager.m */,
+				EF33E3C92337810500FC7F4B /* SKWebImageManagerDelegate.h */,
+				EFB7D4F823408CE800BC5118 /* SKWebImagePrefetcher.h */,
+				EFB7D4F923408CE800BC5118 /* SKWebImagePrefetcher.m */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		EFB7D5182340CD2F00BC5118 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				EF33E3CA233786DD00FC7F4B /* UIImageView+WebCache.h */,
+				EF33E3CB233786DD00FC7F4B /* UIImageView+WebCache.m */,
+				EFB7D4EC233F816000BC5118 /* UIButton+WebCache.h */,
+				EFB7D4ED233F816000BC5118 /* UIButton+WebCache.m */,
+			);
+			path = Categories;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -13,9 +13,9 @@
 
 typedef enum
 {
-    SDWebImageRetryFailed = 1,
-    SDWebImageLowPriority,
-    SDWebImageCacheMemoryOnly
+    SDWebImageRetryFailed = 1 << 0,
+    SDWebImageLowPriority = 1 << 1,
+    SDWebImageCacheMemoryOnly = 1 << 2
 } SDWebImageOptions;
 
 @interface SDWebImageManager : NSObject <SDWebImageDownloaderDelegate, SDImageCacheDelegate>
@@ -23,6 +23,7 @@ typedef enum
     NSMutableArray *downloadDelegates;
     NSMutableArray *downloaders;
     NSMutableArray *cacheDelegates;
+    NSMutableArray *cacheURLs;
     NSMutableDictionary *downloaderForURL;
     NSMutableArray *failedURLs;
 }

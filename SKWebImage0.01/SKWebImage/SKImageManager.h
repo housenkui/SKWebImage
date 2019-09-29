@@ -24,6 +24,7 @@ typedef enum
     NSMutableArray *downloadDelegates;
     NSMutableArray *downloaders;
     NSMutableArray *cacheDelegates;
+    NSMutableArray *cacheURLs;
     NSMutableDictionary *downloaderForURL;
     NSMutableArray *failedURLs;
 }

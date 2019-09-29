@@ -17,6 +17,7 @@
         downloadDelegates = [[NSMutableArray alloc]init];
         downloaders = [[NSMutableArray alloc]init];
         cacheDelegates = [[NSMutableArray alloc]init];
+        cacheURLs = [[NSMutableArray alloc]init];
         downloaderForURL = [[NSMutableDictionary alloc]init];
         failedURLs = [[NSMutableArray alloc]init];
     }
@@ -72,15 +73,22 @@
     
     //Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
+    [cacheURLs addObject:url];
     NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:options],@"options", nil];
-    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];}
+    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
+    
+}
+
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
 {
-    //Remove all instances of delegate from cacheDelegates.
-    //(removeObjectIdenticalTo:does this,despite its singular name.)
+    NSUInteger idx;
+    while ((idx = [cacheDelegates indexOfObjectIdenticalTo:delegate] != NSNotFound))
+    {
+        [cacheDelegates removeObjectAtIndex:idx];
+        [cacheURLs removeObjectAtIndex:idx];
+    }
     [cacheDelegates removeObjectIdenticalTo:delegate];
     
-    NSUInteger idx;
     while ((idx = [downloadDelegates indexOfObjectIdenticalTo:delegate])!= NSNotFound)
     {
         SKImageDownloader *downloader = [downloaders objectAtIndex:idx];
@@ -98,11 +106,25 @@
 }
 
 #pragma mark SKImageCacheDelegate
+- (NSUInteger)indexOfDelegate:(id <SKWebImageManagerDelegate>)delegate waitingForURL:(NSURL *) url
+{
+    NSUInteger idx;
+    for (idx = 0; idx < [cacheDelegates count]; idx ++)
+    {
+        if ([cacheDelegates objectAtIndex:idx] == delegate && [[cacheURLs objectAtIndex:idx] isEqual:url])
+        {
+            return idx;
+        }
+    }
+    return NSNotFound;
+}
+
 - (void)imageCache:(SKImageCache *)imageCache didFindImage:(UIImage *)image forKey:(NSString *)key userInfo:(NSDictionary *)info
 {
+    NSURL *url = [info objectForKey:@"url"];
     id <SKWebImageManagerDelegate>delegate = [info objectForKey:@"delegate"];
     
-    NSUInteger idx = [cacheDelegates indexOfObjectIdenticalTo:delegate];
+    NSUInteger idx = [self indexOfDelegate:delegate waitingForURL:url];
     if (idx == NSNotFound)
     {
         //Request has since been canceled
@@ -116,6 +138,7 @@
     //not all of them (as /removeObjectIndentical:would)
     //in case multiple requests are issued.
     [cacheDelegates removeObjectAtIndex:idx];
+    [cacheURLs removeObjectAtIndex:idx];
 }
 
 - (void)imageCache:(SKImageCache *)imageCache didNotFindImageForKey:(NSString *)key userInfo:(NSDictionary *)info
@@ -124,13 +147,14 @@
     id <SKWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
     SKWebImageOptions options = [[info objectForKey:@"options"] boolValue];
     
-    NSUInteger idx = [cacheDelegates indexOfObjectIdenticalTo:delegate];
+    NSUInteger idx = [self indexOfDelegate:delegate waitingForURL:url];
     if (idx == NSNotFound)
     {
         //Request has since been canceled
         return;
     }
     [cacheDelegates removeObjectAtIndex:idx];
+    [cacheURLs removeObjectAtIndex:idx];
     
     //Share the same downloader for identical URLs so we don't download the same URL several times
     SKImageDownloader *downloader = [downloaderForURL objectForKey:url];

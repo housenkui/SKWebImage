@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#define ENABLE_SDWEBIMAGE_DECODER 
 NS_ASSUME_NONNULL_BEGIN
 @protocol SKWebImageDecoderDelegate;
 

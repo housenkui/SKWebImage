@@ -126,16 +126,15 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
 {
     NSString *key = [arguments objectForKey:@"key"];
     NSMutableDictionary *mutableArguments = [arguments mutableCopy];
-//    UIImage *image = SKScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
-    UIImage *image = [UIImage imageWithContentsOfFile:[self cachePathForKey:key]];
+    //先以你 哼
+    UIImage *image = SKScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
+//    UIImage *image = [UIImage imageWithContentsOfFile:[self cachePathForKey:key]];
 
     if (image) {
-#ifdef ENABLE_SKWEBIMAGE_DECODER
         UIImage *decodedImage = [UIImage decodedImageWithImage:image];
         if (decodedImage) {
             image = decodedImage;
         }
-#endif
         [mutableArguments setObject:image forKey:@"image"];
     }
     [self performSelectorOnMainThread:@selector(notifyDelegate:) withObject:mutableArguments waitUntilDone:NO];

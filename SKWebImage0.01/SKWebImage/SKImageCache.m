@@ -253,5 +253,15 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
-
+- (unsigned long long)getSize
+{
+    int size = 0;
+    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager]enumeratorAtPath:diskCachePath];
+    for (NSString *fileName in fileEnumerator) {
+        NSString *filePath = [diskCachePath stringByAppendingPathComponent:fileName];
+        NSDictionary *attrs = [[NSFileManager defaultManager]attributesOfItemAtPath:filePath error:nil];
+        size += [attrs fileSize];
+    }
+    return size;
+}
 @end

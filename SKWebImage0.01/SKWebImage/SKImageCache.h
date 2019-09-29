@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)clearMemory;
 - (void)clearDisk;
 - (void)cleanDisk;
+- (unsigned long long)getSize;
 @end
 
 NS_ASSUME_NONNULL_END

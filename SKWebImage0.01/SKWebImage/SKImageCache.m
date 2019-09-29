@@ -122,11 +122,25 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
         }
     }
 }
+- (UIImage *)imageForFile:(NSString *)fileKey
+{
+    NSString *file = [self cachePathForKey:fileKey];
+    NSData *imageData = [NSData dataWithContentsOfFile:file];
+    if (imageData) {
+        UIImage *image = [[UIImage alloc]initWithData:imageData];
+        CGFloat scale = 1.0;
+        if ([fileKey hasSuffix:@"@2x.png"]||[fileKey hasSuffix:@"@2x.jpg"]) {
+            scale = 2.0;
+        }
+        return [[UIImage alloc]initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp];
+    }
+    return nil;
+}
 - (void)queryDiskCacheOperation:(NSDictionary *)arguments
 {
     NSString *key = [arguments objectForKey:@"key"];
     NSMutableDictionary *mutableArguments = [arguments mutableCopy];
-    UIImage *image = [UIImage imageWithContentsOfFile:[self cachePathForKey:key]];
+    UIImage *image = [self imageForFile:key];
     if (image) {
 //#ifdef ENABLE_SKWEBIMAGE_DECODER
         UIImage *decodedImage = [UIImage decodedImageWithImage:image];
@@ -181,7 +195,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     }
     UIImage *image = [memCache objectForKey:key];
     if (!image && fromDisk) {
-        image = [UIImage imageWithContentsOfFile:[self cachePathForKey:key]];
+        image = [self imageForFile:key];
         if (image) {
             [memCache setObject:image forKey:key];
         }
@@ -253,6 +267,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
+
 - (unsigned long long)getSize
 {
     int size = 0;

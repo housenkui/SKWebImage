@@ -59,7 +59,7 @@ static SDImageCache *instance;
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
 
-#ifdef __IPHONE_4_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_4_0
         UIDevice *device = [UIDevice currentDevice];
         if ([device respondsToSelector:@selector(isMultitaskingSupported)] && device.multitaskingSupported)
         {
@@ -169,13 +169,25 @@ static SDImageCache *instance;
         }
     }
 }
-
+- (UIImage *) imageForFile:(NSString*)fileKey {
+    NSString *file = [self cachePathForKey:fileKey];
+    NSData *imageData = [NSData dataWithContentsOfFile:file];
+    if (imageData) {
+        UIImage *image = [[[UIImage alloc] initWithData:imageData ] autorelease];
+        CGFloat scale = 1.0;
+        if ([fileKey hasSuffix:@"@2x.png"] || [fileKey hasSuffix:@"@2x.jpg"]) {
+            scale = 2.0;
+        }
+        return [[[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp] autorelease];
+    }
+    return nil;
+}
 - (void)queryDiskCacheOperation:(NSDictionary *)arguments
 {
     NSString *key = [arguments objectForKey:@"key"];
     NSMutableDictionary *mutableArguments = [[arguments mutableCopy] autorelease];
-
-    UIImage *image = [[[UIImage alloc] initWithContentsOfFile:[self cachePathForKey:key]] autorelease];
+    
+    UIImage *image = [self imageForFile:key];
     if (image)
     {
 #ifdef ENABLE_SDWEBIMAGE_DECODER
@@ -247,7 +259,7 @@ static SDImageCache *instance;
 
     if (!image && fromDisk)
     {
-        image = [[[UIImage alloc] initWithContentsOfFile:[self cachePathForKey:key]] autorelease];
+        UIImage *image = [self imageForFile:key];
         if (image)
         {
             [memCache setObject:image forKey:key];
@@ -335,6 +347,19 @@ static SDImageCache *instance;
             [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
         }
     }
+}
+
+-(int)getSize
+{
+    int size = 0;
+    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
+    for (NSString *fileName in fileEnumerator)
+    {
+        NSString *filePath = [diskCachePath stringByAppendingPathComponent:fileName];
+        NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+        size += [attrs fileSize];
+    }
+    return size;
 }
 
 @end

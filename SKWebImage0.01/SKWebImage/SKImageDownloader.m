@@ -103,7 +103,7 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     }
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
-        UIImage *image = [[UIImage alloc]initWithData:imageData];
+        UIImage *image = SKScaledImageForPath(url.absoluteString, imageData);
 #ifdef ENABLE_SDWEBIMAGE_DECODER
         [[SKImageDecoder sharedImageDecoder]decodeImage:image withDelegate:self userInfo:nil];
 #else

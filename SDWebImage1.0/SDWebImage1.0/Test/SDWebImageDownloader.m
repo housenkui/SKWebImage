@@ -125,14 +125,7 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
 
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
-        CGFloat scale = 1.0;
-        NSString *lastPathComponent = url.lastPathComponent;
-        if ([lastPathComponent hasSuffix:@"@2x.png"] || [lastPathComponent hasSuffix:@"@2x.jpg"]) {
-            scale = 2.0;
-        }
-        
-        UIImage *image = [[[UIImage alloc] initWithData:imageData ] autorelease];
-        image = [[UIImage alloc] initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp];
+        UIImage *image = SDScaledImageForPath(url.absoluteString, imageData);
 
 #ifdef ENABLE_SDWEBIMAGE_DECODER
         [[SDWebImageDecoder sharedImageDecoder] decodeImage:image withDelegate:self userInfo:nil];

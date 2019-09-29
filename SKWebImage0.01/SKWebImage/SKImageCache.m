@@ -122,32 +122,20 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
         }
     }
 }
-- (UIImage *)imageForFile:(NSString *)fileKey
-{
-    NSString *file = [self cachePathForKey:fileKey];
-    NSData *imageData = [NSData dataWithContentsOfFile:file];
-    if (imageData) {
-        UIImage *image = [[UIImage alloc]initWithData:imageData];
-        CGFloat scale = 1.0;
-        if ([fileKey hasSuffix:@"@2x.png"]||[fileKey hasSuffix:@"@2x.jpg"]) {
-            scale = 2.0;
-        }
-        return [[UIImage alloc]initWithCGImage:image.CGImage scale:scale orientation:UIImageOrientationUp];
-    }
-    return nil;
-}
 - (void)queryDiskCacheOperation:(NSDictionary *)arguments
 {
     NSString *key = [arguments objectForKey:@"key"];
     NSMutableDictionary *mutableArguments = [arguments mutableCopy];
-    UIImage *image = [self imageForFile:key];
+//    UIImage *image = SKScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
+    UIImage *image = [UIImage imageWithContentsOfFile:[self cachePathForKey:key]];
+
     if (image) {
-//#ifdef ENABLE_SKWEBIMAGE_DECODER
+#ifdef ENABLE_SKWEBIMAGE_DECODER
         UIImage *decodedImage = [UIImage decodedImageWithImage:image];
         if (decodedImage) {
             image = decodedImage;
         }
-//#endif
+#endif
         [mutableArguments setObject:image forKey:@"image"];
     }
     [self performSelectorOnMainThread:@selector(notifyDelegate:) withObject:mutableArguments waitUntilDone:NO];
@@ -195,7 +183,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     }
     UIImage *image = [memCache objectForKey:key];
     if (!image && fromDisk) {
-        image = [self imageForFile:key];
+        image = SKScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
         if (image) {
             [memCache setObject:image forKey:key];
         }

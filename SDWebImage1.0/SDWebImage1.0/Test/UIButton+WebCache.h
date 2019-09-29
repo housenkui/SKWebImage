@@ -8,9 +8,8 @@
 
 #import "SDWebImageCompat.h"
 #import "SDWebImageManagerDelegate.h"
-#import "SDWebImageManager.h"
 
-@interface UIImageView (WebCache) <SDWebImageManagerDelegate>
+@interface UIButton (WebCache) <SDWebImageManagerDelegate>
 
 /**
  * Set the imageView `image` with an `url`.
@@ -29,20 +28,8 @@
  *
  * @param url The url that the `image` is found.
  * @param placeholder A `image` that will be visible while loading the final image.
- * @see setImageWithURL:placeholderImage:options:
  */
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;
-
-/**
- * Set the imageView `image` with an `url`, placeholder and custom options.
- *
- * The downloand is asynchronous and cached.
- *
- * @param url The url that the `image` is found.
- * @param placeholder A `image` that will be visible while loading the final image.
- * @param options A list of `SDWebImageOptions` for current `imageView`. Available options are `SDWebImageRetryFailed`, `SDWebImageLowPriority` and `SDWebImageCacheMemoryOnly`.
- */
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options;
 
 /**
  * Cancel the current download

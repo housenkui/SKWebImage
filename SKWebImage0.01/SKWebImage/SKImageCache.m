@@ -126,7 +126,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
 {
     NSString *key = [arguments objectForKey:@"key"];
     NSMutableDictionary *mutableArguments = [arguments mutableCopy];
-    //先以你 哼
+    //先以你 哼  这行代码
     UIImage *image = SKScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
 //    UIImage *image = [UIImage imageWithContentsOfFile:[self cachePathForKey:key]];
 
@@ -148,7 +148,6 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     [memCache setObject:image forKey:key];
     if (toDisk)
     {
-        if (!data) return;
         NSArray *keyWithData;
         if (data)
         {

@@ -29,13 +29,20 @@
  @param imageData <#imageData description#>
  @return <#return value description#>
  */
-NS_INLINE UIImage *SKScaledImageForPath(NSString *path,NSData *imageData)
+NS_INLINE UIImage *SKScaledImageForPath(NSString *path,id imageData)
 {
     if (!imageData)
     {
         return nil;
     }
-    UIImage *image = [[UIImage alloc]initWithData:imageData];
+    UIImage *image;
+    if (imageData && [[imageData class]isKindOfClass:[UIImage class]]) {
+        image = (UIImage *)imageData;
+    }
+    else
+    {
+      image = [[UIImage alloc]initWithData:imageData];
+    }
     CGFloat scale = 1.0;
     if (path.length >= 8)
     {

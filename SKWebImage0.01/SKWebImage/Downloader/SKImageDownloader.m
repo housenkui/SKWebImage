@@ -177,8 +177,11 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
                 }
             }
             if (partialImageRef) {
-                UIImage *image = [[UIImage alloc]initWithCGImage:partialImageRef];
-                [delegate imageDownloader:self didUpdatePartialImage:image];
+                UIImage *image = SKScaledImageForPath(url.absoluteString, [UIImage imageWithCGImage:partialImageRef]);
+                [[SKImageDecoder sharedImageDecoder]decodeImage:image
+                                                   withDelegate:self
+                                                       userInfo:[NSDictionary dictionaryWithObject:@"partial" forKey:@"type"]];
+                
                 CGImageRelease(partialImageRef);
 
             }
@@ -219,6 +222,10 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 
 - (void)imageDecoder:(SKImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)userInfo
 {
+    if ([[userInfo valueForKey:@"type"] isEqualToString:@"partial"])
+    {
+        [delegate imageDownloader:self didUpdatePartialImage:image];
+    }
     [delegate performSelector:@selector(imageDownloader:didFinishWithImage:) withObject:self withObject:image];
 }
 

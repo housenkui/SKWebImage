@@ -20,6 +20,10 @@ static SDWebImageManager *instance;
 
 @implementation SDWebImageManager
 
+#if NS_BLOCKS_AVAILABLE
+@synthesize cacheKeyFilter;
+#endif
+
 - (id)init
 {
     if ((self = [super init]))
@@ -56,12 +60,28 @@ static SDWebImageManager *instance;
     return instance;
 }
 
+- (NSString *)cacheKeyForURL:(NSURL *)url
+{
+#if NS_BLOCKS_AVAILABLE
+    if (self.cacheKeyFilter)
+    {
+        return self.cacheKeyFilter(url);
+    }
+    else
+    {
+        return [url absoluteString];
+    }
+#else
+    return [url absoluteString];
+#endif
+}
+
 /**
  * @deprecated
  */
 - (UIImage *)imageWithURL:(NSURL *)url
 {
-    return [[SDImageCache sharedImageCache] imageFromKey:[url absoluteString]];
+    return [[SDImageCache sharedImageCache] imageFromKey:[self cacheKeyForURL:url]];
 }
 
 /**
@@ -106,7 +126,7 @@ static SDWebImageManager *instance;
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", [NSNumber numberWithInt:options], @"options", nil];
-    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
+    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
 }
 
 #if NS_BLOCKS_AVAILABLE
@@ -129,12 +149,12 @@ static SDWebImageManager *instance;
     // Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
-    SuccessBlock successCopy = Block_copy(success);
-    FailureBlock failureCopy = Block_copy(failure);
+    SuccessBlock successCopy = [success copy];
+    FailureBlock failureCopy = [failure copy];
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:delegate, @"delegate", url, @"url", [NSNumber numberWithInt:options], @"options", successCopy, @"success", failureCopy, @"failure", nil];
-    Block_release(successCopy);
-    Block_release(failureCopy);
-    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
+    SDWIRelease(successCopy);
+    SDWIRelease(failureCopy);
+    [[SDImageCache sharedImageCache] queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
 }
 #endif
 
@@ -244,11 +264,38 @@ static SDWebImageManager *instance;
         downloader.lowPriority = (options & SDWebImageLowPriority);
     }
 
+    if ((options & SDWebImageProgressiveDownload) && !downloader.progressive)
+    {
+        // Turn progressive download support on demand
+        downloader.progressive = YES;
+    }
+
     [downloadDelegates addObject:delegate];
     [downloaders addObject:downloader];
 }
 
 #pragma mark SDWebImageDownloaderDelegate
+
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didUpdatePartialImage:(UIImage *)image
+{
+    // Notify all the downloadDelegates with this downloader
+    for (NSInteger idx = (NSInteger)[downloaders count] - 1; idx >= 0; idx--)
+    {
+        NSUInteger uidx = (NSUInteger)idx;
+        SDWebImageDownloader *aDownloader = [downloaders objectAtIndex:uidx];
+        if (aDownloader == downloader)
+        {
+            id<SDWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:uidx];
+            SDWIRetain(delegate);
+            SDWIAutorelease(delegate);
+
+            if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:)])
+            {
+                objc_msgSend(delegate, @selector(webImageManager:didProgressWithPartialImage:forURL:), self, image, downloader.url);
+            }
+        }
+    }
+}
 
 - (void)imageDownloader:(SDWebImageDownloader *)downloader didFinishWithImage:(UIImage *)image
 {
@@ -313,7 +360,7 @@ static SDWebImageManager *instance;
         // Store the image in the cache
         [[SDImageCache sharedImageCache] storeImage:image
                                           imageData:downloader.imageData
-                                             forKey:[downloader.url absoluteString]
+                                             forKey:[self cacheKeyForURL:downloader.url]
                                              toDisk:!(options & SDWebImageCacheMemoryOnly)];
     }
     else if (!(options & SDWebImageRetryFailed))

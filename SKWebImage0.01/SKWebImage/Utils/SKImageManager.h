@@ -16,7 +16,9 @@ typedef enum
 {
     SKWebImageRetryFailed = 1 << 0,
     SKWebImageLowPriority = 1 << 1,
-    SKWebImageCacheMemoryOnly = 1 << 2
+    SKWebImageCacheMemoryOnly = 1 << 2,
+    SKWebImageProgressiveDownload = 1 << 3
+
 }SKWebImageOptions;
 typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
 @interface SKImageManager : NSObject<SKImageDownloaderDelegate,SKImageCacheDelegate>

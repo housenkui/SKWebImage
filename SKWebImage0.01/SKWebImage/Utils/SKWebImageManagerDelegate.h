@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class SKImageManager;
 @protocol SKWebImageManagerDelegate <NSObject>
 @optional
+
+- (void)webImageManager:(SKImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url;
 - (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image;
 - (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image forURL:(NSURL *)url;
 - (void)webImageManager:(SKImageManager *)imagerManager didFailWithError:(NSError *)error;

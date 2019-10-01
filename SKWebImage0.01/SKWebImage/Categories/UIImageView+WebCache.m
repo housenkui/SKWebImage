@@ -50,8 +50,8 @@
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SKWebImageOptions)options success:(void (^)(UIImage * _Nonnull))success failure:(void (^)(NSError * _Nonnull))failure
 {
-    SKImageManager *manager = [SKImageManager sharedManager];
     
+    SKImageManager *manager = [SKImageManager sharedManager];
     //Remove in progress downloader from queue
     [manager cancelForDelegate:self];
     self.image = placeholder;
@@ -60,11 +60,12 @@
         [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
     }
 }
-
+- (void)webImageManager:(SKImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url
+{
+    self.image = image;
+}
 - (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image{
-    dispatch_async(dispatch_get_main_queue(), ^{
         self.image = image;
-    });
 }
 
 - (void)cancelCurrentImageLoad {

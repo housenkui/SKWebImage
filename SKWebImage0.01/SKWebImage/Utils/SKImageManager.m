@@ -91,7 +91,7 @@ typedef void (^FailureBlock)(NSError *error);
     //Check the on-disk cache async so we don't block the main thread
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
-    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:options],@"options", nil];
+    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithInt:options],@"options", nil];
     [[SKImageCache sharedImageCache]queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
     
 }
@@ -117,7 +117,7 @@ typedef void (^FailureBlock)(NSError *error);
     
     SuccessBlock successCopy = [success copy];
     FailureBlock failureCopy = [failure copy];
-    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:options],@"options",successCopy,@"success",failureCopy,@"failure", nil];
+    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithInt:options],@"options",successCopy,@"success",failureCopy,@"failure", nil];
     [[SKImageCache sharedImageCache]queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];}
 
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
@@ -195,7 +195,7 @@ typedef void (^FailureBlock)(NSError *error);
 {
     NSURL *url = [info objectForKey:@"url"];
     id <SKWebImageManagerDelegate> delegate = [info objectForKey:@"delegate"];
-    SKWebImageOptions options = [[info objectForKey:@"options"] boolValue];
+    SKWebImageOptions options = [[info objectForKey:@"options"] intValue];
     
     NSUInteger idx = [self indexOfDelegate:delegate waitingForURL:url];
     if (idx == NSNotFound)
@@ -219,11 +219,36 @@ typedef void (^FailureBlock)(NSError *error);
         downloader.userInfo = info;
         downloader.lowPriority = (options & SKWebImageLowPriority);
     }
+    
+    if ((options & SKWebImageProgressiveDownload) && !downloader.progressive)
+    {
+        //Turn progressive download support on demand
+        downloader.progressive = YES;
+    }
     [downloadDelegates addObject:delegate];
     [downloaders addObject:downloader];
 }
 
 #pragma mark --SKImageDownloaderDelegate
+
+- (void)imageDownloader:(SKImageDownloader *)downloader didUpdatePartialImage:(UIImage *)image
+{
+    for (NSUInteger uidx = [downloaders count] - 1; uidx > 0; uidx --)
+    {
+        SKImageDownloader *aDownloader = [downloaders objectAtIndex:uidx];
+        if (aDownloader == downloader)
+        {
+            id <SKWebImageManagerDelegate>delegate = [downloadDelegates objectAtIndex:uidx];
+            
+            if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:)])
+            {
+//                objc_msgSend(delegate, @selector(webImageManager:didProgressWithPartialImage:forURL:),self,image,downloader.url);
+                [delegate webImageManager:self didProgressWithPartialImage:image forURL:downloader.url];
+            }
+        }
+    }
+}
+
 
 - (void)imageDownloader:(SKImageDownloader *)downloader didFinishWithImage:(UIImage *)image
 {

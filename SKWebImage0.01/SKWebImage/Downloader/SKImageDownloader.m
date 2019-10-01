@@ -7,8 +7,8 @@
 //
 
 #import "SKImageDownloader.h"
-
 #import "SKImageDecoder.h"
+#import <ImageIO/ImageIO.h>
 @interface SKImageDownloader (ImageDecoder)<SKWebImageDecoderDelegate>
 @end
 
@@ -18,7 +18,7 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 @property (strong,nonatomic) NSURLConnection *connection;
 @end
 @implementation SKImageDownloader
-@synthesize url,delegate,connection,imageData,userInfo,lowPriority;
+@synthesize url,delegate,connection,imageData,userInfo,lowPriority,progressive;
 
 +(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate {
     
@@ -51,6 +51,7 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     downloader.lowPriority = lowPriority;
     //Ensure the downloader is started from the main thread
     [downloader performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:YES];
+   
     return downloader;
 }
 +(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate userInfo:(nullable id)userInfo
@@ -78,7 +79,6 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     [connection start];
     
     if (connection) {
-        self.imageData = [NSMutableData data];
         [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStartNotification object:nil];
     }
     else {
@@ -97,10 +97,15 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
         [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:nil];
     }
 }
-
+#pragma mark NSURLConnection (delegate)
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-    if ([response respondsToSelector:@selector(statusCode)] && [(NSHTTPURLResponse *)response statusCode] >= 400)
+    if ([response respondsToSelector:@selector(statusCode)] && [(NSHTTPURLResponse *)response statusCode] < 400)
+    {
+        expectedSize = response.expectedContentLength > 0 ? response.expectedContentLength : 0;
+        self.imageData = [[NSMutableData alloc]initWithCapacity:expectedSize];
+    }
+    else
     {
         [connection cancel];
         [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:nil];
@@ -118,9 +123,68 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
     [imageData appendData:data];
-    NSLog(@"-----%@---- %@-",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode]);
-   
+    //这里data.length 数值和什么有关系，最大值是多少？
+    NSLog(@"-----%@---- %@----%lu",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode],data.length);
+    //一下是图片解码的操作绝对不能放在主线程
+    if (self.progressive && expectedSize > 0 && [delegate respondsToSelector:@selector(imageDownloader:didUpdatePartialImage:)])
+    {
+        //Get the total bytes downloaded
+        const NSUInteger totalSize = [imageData length];
+        
+        //Update the data source,we must pass All the data,not just the new bytes
+        CGImageSourceRef imageSource = CGImageSourceCreateIncremental(NULL);
+        CGImageSourceUpdateData(imageSource, (CFDataRef)imageData, totalSize == expectedSize);
+        
+        if (width + height == 0)
+        {
+            CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
+            if (properties)
+            {
+                CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
+                if (val) {
+                    CFNumberGetValue(val, kCFNumberLongType, &height);
+                }
+                val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
+                if (val) {
+                    CFNumberGetValue(val, kCFNumberLongType, &width);
+                }
+                CFRelease(properties);
+            }
+        }
+        
+        if (width + height > 0 && totalSize < expectedSize)
+        {
+          // Create the image
+            CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
+            
+            if (partialImageRef)
+            {
+                const size_t partialHeight = CGImageGetHeight(partialImageRef);
+                CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+                CGContextRef bmContext = CGBitmapContextCreate(NULL, width, height, 8, width*4, colorSpace, kCGBitmapByteOrderDefault|kCGImageAlphaPremultipliedFirst);
+                CGColorSpaceRelease(colorSpace);
+                if (bmContext)
+                {
+                    CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f,.origin.y = 0.0f,.size.width = width,.size.height = partialHeight}, partialImageRef);
+                    CGImageRelease(partialImageRef);
+                    partialImageRef = CGBitmapContextCreateImage(bmContext);
+                    CGContextRelease(bmContext);
+                }
+                else
+                {
+                    CGImageRelease(partialImageRef);
+                    partialImageRef = nil;
+                }
+            }
+            if (partialImageRef) {
+                UIImage *image = [[UIImage alloc]initWithCGImage:partialImageRef];
+                [delegate imageDownloader:self didUpdatePartialImage:image];
+                CGImageRelease(partialImageRef);
 
+            }
+        }
+        CFRelease(imageSource);
+    }
 }
 
 #pragma GCC diagnostic ignored "-Wundeclared-selector"
@@ -136,7 +200,6 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     if ([delegate respondsToSelector:@selector(imageDownloader:didFinishWithImage:)])
     {
         UIImage *image = SKScaledImageForPath(url.absoluteString, imageData);
-
         [[SKImageDecoder sharedImageDecoder]decodeImage:image withDelegate:self userInfo:nil];
 
     }

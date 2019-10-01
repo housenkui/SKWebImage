@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 
 - (void)imageDownloaderDidFinish:(SKImageDownloader *)downloader;
+- (void)imageDownloader:(SKImageDownloader *)downloader didUpdatePartialImage:(UIImage *)image;
 - (void)imageDownloader:(SKImageDownloader *)downloader didFinishWithImage:(UIImage *)image;
 - (void)imageDownloader:(SKImageDownloader *)downloader didFailWithError:(NSError *)error;
 

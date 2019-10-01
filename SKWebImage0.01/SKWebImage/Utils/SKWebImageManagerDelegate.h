@@ -10,14 +10,38 @@
 @class UIImage;
 NS_ASSUME_NONNULL_BEGIN
 @class SKImageManager;
+/**
+ * Delegate protocol for SKWebImageManager
+ */
+
 @protocol SKWebImageManagerDelegate <NSObject>
 @optional
+/**
+ * Called while an image is downloading with an partial image object representing the currently downloaded portion of the image.
+ * This delegate is called only if ImageIO is available and `SKWebImageProgressiveDownload` option has been used.
+ */
 
 - (void)webImageManager:(SKImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url;
-- (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image;
+
+/**
+ * Called when image download is completed successfuly.
+ *
+ * @param imagerManager The image manager
+ * @param image The retrived image object
+ * @param url The image URL used to retrive the image
+ */
 - (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image forURL:(NSURL *)url;
-- (void)webImageManager:(SKImageManager *)imagerManager didFailWithError:(NSError *)error;
+- (void)webImageManager:(SKImageManager *)imageManager didFinishWithImage:(UIImage *)image;
+
+/**
+ * Called when an error occurred.
+ *
+ * @param imagerManager The image manager
+ * @param error The error
+ * @param url The image URL used to retrive the image
+ */
 - (void)webImageManager:(SKImageManager *)imagerManager didFailWithError:(NSError *)error forURL:(NSURL *)url;
+- (void)webImageManager:(SKImageManager *)imageManager didFailWithError:(NSError *)error;
 
 
 @end

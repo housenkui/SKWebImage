@@ -21,6 +21,25 @@ typedef enum
 
 }SKWebImageOptions;
 typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
+/**
+ * The SKWebImageManager is the class behind the UIImageView+WebCache category and likes.
+ * It ties the asynchronous downloader (SKWebImageDownloader) with the image cache store (SKImageCache).
+ * You can use this class directly to benefit from web image downloading with caching in another context than
+ * a UIView.
+ *
+ * Here is a simple example of how to use SKWebImageManager:
+ *
+ *  SKWebImageManager *manager = [SKWebImageManager sharedManager];
+ *  [manager downloadWithURL:imageURL
+ *                  delegate:self
+ *                   options:0
+ *                   success:^(UIImage *image)
+ *                   {
+ *                       // do something with image
+ *                   }
+ *                   failure:nil];
+ */
+
 @interface SKImageManager : NSObject<SKImageDownloaderDelegate,SKImageCacheDelegate>
 {
     NSMutableArray *downloadDelegates;
@@ -31,20 +50,77 @@ typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
     NSMutableArray *failedURLs;
 }
 
+/**
+ * The cache filter is a block used each time SKWebManager need to convert an URL into a cache key. This can
+ * be used to remove dynamic part of an image URL.
+ *
+ * The following example sets a filter in the application delegate that will remove any query-string from the
+ * URL before to use it as a cache key:
+ *
+ *     [[SKWebImageManager sharedManager] setCacheKeyFilter:^(NSURL *url)
+ *    {
+ *        url = [[NSURL alloc] initWithScheme:url.scheme host:url.host path:url.path];
+ *        return [url absoluteString];
+ *    }];
+ */
+
 @property (nonatomic,copy) CacheKeyFilter cacheKeyFilter;
+/**
+ * Returns global SKWebImageManager instance.
+ *
+ * @return SKWebImageManager shared instance
+ */
 + (SKImageManager *)sharedManager;
-- (UIImage *)imageWithURL:(NSURL *)url;
+
+- (UIImage *)imageWithURL:(NSURL *)url __attribute__ ((deprecated));
+
+/**
+ * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ * @param url The URL to the image
+ * @param delegate The delegate object used to send result back
+ * @see [SKWebImageManager downloadWithURL:delegate:options:]
+ * @see [SKWebImageManager downloadWithURL:delegate:options:success:failure:]
+ */
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate;
+
+/**
+ * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ * @param url The URL to the image
+ * @param delegate The delegate object used to send result back
+ * @param options A mask to specify options to use for this request
+ * @see [SKWebImageManager downloadWithURL:delegate:options:success:failure:]
+ */
+
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate options:(SKWebImageOptions)options;
 
+// use options:SKWebImageRetryFailed instead
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed __attribute__ ((deprecated));
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority __attribute__ ((deprecated));;
+// use options:SKWebImageRetryFailed|SKWebImageLowPriority instead
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed lowPriority:(BOOL)lowPriority __attribute__ ((deprecated));
 
+/**
+ * Downloads the image at the given URL if not present in cache or return the cached version otherwise.
+ *
+ * @param url The URL to the image
+ * @param delegate The delegate object used to send result back
+ * @param options A mask to specify options to use for this request
+ * @param success A block called when image has been retrived successfuly
+ * @param failure A block called when couldn't be retrived for some reason
+ * @see [SKWebImageManager downloadWithURL:delegate:options:]
+ */
 - (void)downloadWithURL:(NSURL *)url
                delegate:(id<SKWebImageManagerDelegate>)delegate
                 options:(SKWebImageOptions)options
                 success:(void (^)(UIImage * image))success
                 failure:(void (^)(NSError *error))failure;
+
+/**
+ * Cancel all pending download requests for a given delegate
+ *
+ * @param delegate The delegate to cancel requests for
+ */
 
 - (void)cancelForDelegate:(id <SKWebImageManagerDelegate>)delegate;
 @end

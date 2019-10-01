@@ -36,7 +36,7 @@ NS_INLINE UIImage *SKScaledImageForPath(NSString *path,id imageData)
         return nil;
     }
     UIImage *image;
-    if (imageData && [[imageData class]isKindOfClass:[UIImage class]]) {
+    if (imageData && [imageData isKindOfClass:[UIImage class]]) {
         image = (UIImage *)imageData;
     }
     else

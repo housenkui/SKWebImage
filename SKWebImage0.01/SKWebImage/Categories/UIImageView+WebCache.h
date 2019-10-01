@@ -11,6 +11,38 @@
 #import "SKWebImageManagerDelegate.h"
 #import "SKImageManager.h"
 NS_ASSUME_NONNULL_BEGIN
+/**
+ * Integrates SKWebImage async downloading and caching of remote images with UIImageView.
+ *
+ * Usage with a UITableViewCell sub-class:
+ *
+ *     #import <SKWebImage/UIImageView+WebCache.h>
+ *
+ *     ...
+ *
+ *     - (UITableViewCell *)tableView:(UITableView *)tableView
+ *              cellForRowAtIndexPath:(NSIndexPath *)indexPath
+ *     {
+ *         static NSString *MyIdentifier = @"MyIdentifier";
+ *
+ *         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
+ *
+ *         if (cell == nil)
+ *         {
+ *             cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+ *                                            reuseIdentifier:MyIdentifier] autorelease];
+ *         }
+ *
+ *         // Here we use the provided setImageWithURL: method to load the web image
+ *         // Ensure you use a placeholder image otherwise cells will be initialized with no image
+ *         [cell.imageView setImageWithURL:[NSURL URLWithString:@"http://example.com/image.jpg"]
+ *                        placeholderImage:[UIImage imageNamed:@"placeholder"]];
+ *
+ *         cell.textLabel.text = @"My Text";
+ *         return cell;
+ *     }
+ *
+ */
 
 @interface UIImageView (WebCache) <SKWebImageManagerDelegate>
 
@@ -43,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param url The url that the `image` is found.
  * @param placeholder A `image` that will be visible while loading the final image.
- * @param options A list of `SDWebImageOptions` for current `imageView`. Available options are `SDWebImageRetryFailed`, `SDWebImageLowPriority` and `SDWebImageCacheMemoryOnly`.
+ * @param options A list of `SKWebImageOptions` for current `imageView`. Available options are `SKWebImageRetryFailed`, `SKWebImageLowPriority` and `SKWebImageCacheMemoryOnly`.
  */
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SKWebImageOptions)options;

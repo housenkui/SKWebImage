@@ -18,7 +18,7 @@ typedef enum
     SKWebImageLowPriority = 1 << 1,
     SKWebImageCacheMemoryOnly = 1 << 2
 }SKWebImageOptions;
-
+typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
 @interface SKImageManager : NSObject<SKImageDownloaderDelegate,SKImageCacheDelegate>
 {
     NSMutableArray *downloadDelegates;
@@ -28,6 +28,8 @@ typedef enum
     NSMutableDictionary *downloaderForURL;
     NSMutableArray *failedURLs;
 }
+
+@property (nonatomic,copy) CacheKeyFilter cacheKeyFilter;
 + (SKImageManager *)sharedManager;
 - (UIImage *)imageWithURL:(NSURL *)url;
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate;

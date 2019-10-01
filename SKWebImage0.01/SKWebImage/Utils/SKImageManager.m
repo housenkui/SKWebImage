@@ -16,6 +16,7 @@ typedef void (^FailureBlock)(NSError *error);
 @interface SKImageManager ()
 @end
 @implementation SKImageManager
+@synthesize cacheKeyFilter;
 - (instancetype)init {
     if (self = [super init])
     {
@@ -27,6 +28,17 @@ typedef void (^FailureBlock)(NSError *error);
         failedURLs = [[NSMutableArray alloc]init];
     }
     return self;
+}
+- (NSString *)cacheKeyForURL:(NSURL *)url
+{
+    if (self.cacheKeyFilter)
+    {
+        return self.cacheKeyFilter(url);
+    }
+    else
+    {
+        return [url absoluteString];
+    }
 }
 + (SKImageManager *)sharedManager {
     
@@ -41,7 +53,7 @@ typedef void (^FailureBlock)(NSError *error);
 
 - (UIImage *)imageWithURL:(NSURL *)url {
     
-    return [[SKImageCache sharedImageCache]imageFromKey:url.absoluteString];
+    return [[SKImageCache sharedImageCache]imageFromKey:[self cacheKeyForURL:url]];
 }
 
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate retryFailed:(BOOL)retryFailed
@@ -80,7 +92,7 @@ typedef void (^FailureBlock)(NSError *error);
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
     NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:options],@"options", nil];
-    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];
+    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
     
 }
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate options:(SKWebImageOptions)options success:(void (^)(UIImage * _Nonnull))success failure:(void (^)(NSError * _Nonnull))failure
@@ -106,7 +118,7 @@ typedef void (^FailureBlock)(NSError *error);
     SuccessBlock successCopy = [success copy];
     FailureBlock failureCopy = [failure copy];
     NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:options],@"options",successCopy,@"success",failureCopy,@"failure", nil];
-    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];}
+    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];}
 
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
 {
@@ -265,7 +277,7 @@ typedef void (^FailureBlock)(NSError *error);
     {
         //Store the image in the cache
         [[SKImageCache sharedImageCache] storeImage:image
-                                             forKey:downloader.url.absoluteString
+                                             forKey:[self cacheKeyForURL:downloader.url]
                                           imageData:downloader.imageData
                                              toDisk:!(options & SKWebImageCacheMemoryOnly)];
     }

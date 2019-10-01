@@ -98,7 +98,7 @@
     CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
     
-    UIImage *decompressedImage = [[UIImage alloc]initWithCGImage:decompressedImageRef];
+    UIImage *decompressedImage = [[UIImage alloc]initWithCGImage:decompressedImageRef scale:image.scale orientation:UIImageOrientationUp];
     CGImageRelease(decompressedImageRef);
     NSLog(@"decodedImageWithImage end %@",[NSThread currentThread]);
 

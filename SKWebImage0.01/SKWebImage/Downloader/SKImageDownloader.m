@@ -28,6 +28,10 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     if (NSClassFromString(@"SDNetworkActivityIndicator"))
     {
         id activityIndicator = [NSClassFromString(@"SDNetworkActivityIndicator") performSelector:NSSelectorFromString(@"sharedActivityIndicator")];
+        // Remove observer in case it was previously added.
+        [[NSNotificationCenter defaultCenter] removeObserver:activityIndicator name:SKWebImageDownloadStartNotification object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:activityIndicator name:SKWebImageDownloadStopNotification object:nil];
+
         [[NSNotificationCenter defaultCenter] addObserver:activityIndicator
                                                  selector:NSSelectorFromString(@"startActivity")
                                                      name:SKWebImageDownloadStartNotification object:nil];
@@ -52,8 +56,16 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 + (void)setMaxConcurrentDownloaders:(NSUInteger)max {
     // NOOP
 }
-
++ (NSString *)defaultRunLoopMode
+{
+    // Key off `activeProcessorCount` (as opposed to `processorCount`) since the system could shut down cores in certain situations.
+    NSProcessInfo *ProcessInfo = [NSProcessInfo processInfo];
+    NSLog(@"ProcessInfo = %lu",ProcessInfo.activeProcessorCount);
+    //mini 6个cpu ,IPhone6p,2个cpu
+    return [NSProcessInfo processInfo].activeProcessorCount > 1 ? NSRunLoopCommonModes : NSDefaultRunLoopMode;
+}
 - (void)start {
+    [[self class] defaultRunLoopMode];
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30];
     self.connection = [[NSURLConnection alloc]initWithRequest:request delegate:self startImmediately:NO];
     if (!lowPriority) {

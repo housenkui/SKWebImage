@@ -14,12 +14,8 @@ typedef void (^SuccessBlock)(UIImage *image);
 typedef void (^FailureBlock)(NSError *error);
 
 @interface SKImageManager ()
-@property (nonatomic,copy) SuccessBlock successBlock;
-@property (nonatomic,copy) FailureBlock failureBlock;
 @end
 @implementation SKImageManager
-@synthesize successBlock;
-@synthesize failureBlock;
 - (instancetype)init {
     if (self = [super init])
     {
@@ -89,10 +85,28 @@ typedef void (^FailureBlock)(NSError *error);
 }
 - (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate options:(SKWebImageOptions)options success:(void (^)(UIImage * _Nonnull))success failure:(void (^)(NSError * _Nonnull))failure
 {
-    self.successBlock = success;
-    self.failureBlock = failure;
-    [self downloadWithURL:url delegate:delegate options:options];
-}
+    
+    // repeated logic from above due to requirement for backwards compatability for iOS versions without blocks
+    
+    // Very common mistake is to send the URL using NSString object instead of NSURL. For some strange reason, XCode won't
+    // throw any warning for this type mismatch. Here we failsafe this error by allowing URLs to be passed as NSString.
+    if ([url isKindOfClass:NSString.class])
+    {
+        url = [NSURL URLWithString:(NSString *)url];
+    }
+    
+    if (!url || !delegate || (!(options & SKWebImageRetryFailed) && [failedURLs containsObject:url]))
+    {
+        return;
+    }
+    //Check the on-disk cache async so we don't block the main thread
+    [cacheDelegates addObject:delegate];
+    [cacheURLs addObject:url];
+    
+    SuccessBlock successCopy = [success copy];
+    FailureBlock failureCopy = [failure copy];
+    NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithBool:options],@"options",successCopy,@"success",failureCopy,@"failure", nil];
+    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[url absoluteString] delegate:self userInfo:info];}
 
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
 {
@@ -153,9 +167,10 @@ typedef void (^FailureBlock)(NSError *error);
     {
         objc_msgSend(delegate,@selector(webImageManager:didFinishWithImage:forURL:),self,image,url);
     }
-    if(self.successBlock)
+    if([info objectForKey:@"success"])
     {
-        self.successBlock(image);
+        SuccessBlock success = [info objectForKey:@"success"];
+        success(image);
     }
     //Remove one instance of delegate from the array,
     //not all of them (as /removeObjectIndentical:would)
@@ -219,9 +234,10 @@ typedef void (^FailureBlock)(NSError *error);
                 {
                     objc_msgSend(delegate, @selector(webImageManager:didFinishWithImage:forURL:),self,image,downloader.url);
                 }
-                if(self.successBlock)
+                if([downloader.userInfo objectForKey:@"success"])
                 {
-                    self.successBlock(image);
+                    SuccessBlock success = [downloader.userInfo objectForKey:@"success"];
+                    success(image);
                 }
             }
             else
@@ -234,9 +250,10 @@ typedef void (^FailureBlock)(NSError *error);
                 {
                     objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:),self,image,downloader.url);
                 }
-                if (self.failureBlock)
+                if([downloader.userInfo objectForKey:@"failure"])
                 {
-                    self.failureBlock(nil);
+                    FailureBlock failure = [downloader.userInfo objectForKey:@"failure"];
+                    failure(nil);
                 }
             }
             
@@ -277,9 +294,10 @@ typedef void (^FailureBlock)(NSError *error);
             {
                 objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:),self,error,downloader.url);
             }
-            if (self.failureBlock)
+            if([downloader.userInfo objectForKey:@"failure"])
             {
-                self.failureBlock(nil);
+                FailureBlock failure = [downloader.userInfo objectForKey:@"failure"];
+                failure(nil);
             }
             [downloaders removeObjectAtIndex:idx];
             [downloadDelegates removeObjectAtIndex:idx];

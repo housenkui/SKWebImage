@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)queryDiskCacheForKey:(NSString *)key delegate:(id <SKImageCacheDelegate>) delegate userInfo:(NSDictionary *)info;
 
 - (void)removeImageForKey:(NSString *)key;
+- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk;
+
 - (void)clearMemory;
 - (void)clearDisk;
 - (void)cleanDisk;

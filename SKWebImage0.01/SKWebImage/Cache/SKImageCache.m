@@ -221,12 +221,19 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     
 }
 - (void)removeImageForKey:(NSString *)key {
+    [self removeImageForKey:key fromDisk:YES];
+}
+
+- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk {
     if (!key) {
         return;
     }
     [memCache removeObjectForKey:key];
-    [[NSFileManager defaultManager]removeItemAtPath:[self cachePathForKey:key] error:nil];
+    if (fromDisk) {
+        [[NSFileManager defaultManager]removeItemAtPath:[self cachePathForKey:key] error:nil];
+    }
 }
+
 
 - (void)clearMemory {
     [cacheInQueue cancelAllOperations];

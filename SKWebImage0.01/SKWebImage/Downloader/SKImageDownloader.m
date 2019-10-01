@@ -27,7 +27,11 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 +(id)downloaderWithURL:(NSURL *)url delegate:(id<SKImageDownloaderDelegate>)delegate userInfo:(nullable id)userInfo lowPriority:(BOOL)lowPriority {
     if (NSClassFromString(@"SDNetworkActivityIndicator"))
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         id activityIndicator = [NSClassFromString(@"SDNetworkActivityIndicator") performSelector:NSSelectorFromString(@"sharedActivityIndicator")];
+#pragma clang diagnostic pop
+
         // Remove observer in case it was previously added.
         [[NSNotificationCenter defaultCenter] removeObserver:activityIndicator name:SKWebImageDownloadStartNotification object:nil];
         [[NSNotificationCenter defaultCenter] removeObserver:activityIndicator name:SKWebImageDownloadStopNotification object:nil];

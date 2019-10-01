@@ -100,7 +100,7 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-    if ([(NSHTTPURLResponse *)response statusCode] >= 400)
+    if ([response respondsToSelector:@selector(statusCode)] && [(NSHTTPURLResponse *)response statusCode] >= 400)
     {
         [connection cancel];
         [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:nil];

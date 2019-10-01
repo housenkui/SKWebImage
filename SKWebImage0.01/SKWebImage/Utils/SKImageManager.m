@@ -20,6 +20,7 @@ typedef void (^FailureBlock)(NSError *error);
 - (instancetype)init {
     if (self = [super init])
     {
+        downloadInfo = [[NSMutableArray alloc]init];
         downloadDelegates = [[NSMutableArray alloc]init];
         downloaders = [[NSMutableArray alloc]init];
         cacheDelegates = [[NSMutableArray alloc]init];
@@ -134,6 +135,7 @@ typedef void (^FailureBlock)(NSError *error);
     {
         SKImageDownloader *downloader = [downloaders objectAtIndex:idx];
         
+        [downloadInfo removeObjectAtIndex:idx];
         [downloadDelegates removeObjectAtIndex:idx];
         [downloaders removeObjectAtIndex:idx];
         
@@ -225,7 +227,6 @@ typedef void (^FailureBlock)(NSError *error);
     else
     {
         //Reuse shared downloader
-        downloader.userInfo = info;
         downloader.lowPriority = (options & SKWebImageLowPriority);
     }
     
@@ -234,6 +235,7 @@ typedef void (^FailureBlock)(NSError *error);
         //Turn progressive download support on demand
         downloader.progressive = YES;
     }
+    [downloadInfo addObject:info];
     [downloadDelegates addObject:delegate];
     [downloaders addObject:downloader];
 }
@@ -255,7 +257,7 @@ typedef void (^FailureBlock)(NSError *error);
             }
             if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:userInfo:)])
             {
-                NSDictionary *userInfo = [downloader.userInfo objectForKey:@"userInfo"];
+                NSDictionary *userInfo = [[downloadInfo objectAtIndex:uidx] objectForKey:@"userInfo"];
                 if ([userInfo isKindOfClass:NSNull.class])
                 {
                     userInfo = nil;
@@ -290,16 +292,16 @@ typedef void (^FailureBlock)(NSError *error);
                 }
                 if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:forURL:userInfo:)])
                 {
-                    NSDictionary *userInfo = [downloader.userInfo objectForKey:@"userInfo"];
+                    NSDictionary *userInfo = [[downloadInfo objectAtIndex:idx] objectForKey:@"userInfo"];
                     if ([userInfo isKindOfClass:NSNull.class])
                     {
                         userInfo = nil;
                     }
                     [delegate webImageManager:self didFinishWithImage:image forURL:downloader.url userInfo:userInfo];
                 }
-                if([downloader.userInfo objectForKey:@"success"])
+                if([[downloadInfo objectAtIndex:idx] objectForKey:@"success"])
                 {
-                    SuccessBlock success = [downloader.userInfo objectForKey:@"success"];
+                    SuccessBlock success = [[downloadInfo objectAtIndex:idx]objectForKey:@"success"];
                     success(image);
                 }
             }
@@ -315,21 +317,22 @@ typedef void (^FailureBlock)(NSError *error);
                 }
                 if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:userInfo:)])
                 {
-                    NSDictionary *userInfo = [downloader.userInfo objectForKey:@"userInfo"];
+                    NSDictionary *userInfo = [[downloadInfo objectAtIndex:idx] objectForKey:@"userInfo"];
                     if ([userInfo isKindOfClass:NSNull.class])
                     {
                         userInfo = nil;
                     }
                     objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:userInfo:), self, nil, downloader.url, userInfo);
                 }
-                if([downloader.userInfo objectForKey:@"failure"])
+                if([[downloadInfo objectAtIndex:idx] objectForKey:@"failure"])
                 {
-                    FailureBlock failure = [downloader.userInfo objectForKey:@"failure"];
+                    FailureBlock failure = [[downloadInfo objectAtIndex:idx]objectForKey:@"failure"];
                     failure(nil);
                 }
             }
             
             [downloaders removeObjectAtIndex:idx];
+            [downloadInfo removeObjectAtIndex:idx];
             [downloadDelegates removeObjectAtIndex:idx];
         }
     }
@@ -368,19 +371,20 @@ typedef void (^FailureBlock)(NSError *error);
             }
             if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:userInfo:)])
             {
-                NSDictionary *userInfo = [downloader.userInfo objectForKey:@"userInfo"];
+                NSDictionary *userInfo = [[downloadInfo objectAtIndex:idx] objectForKey:@"userInfo"];
                 if ([userInfo isKindOfClass:NSNull.class])
                 {
                     userInfo = nil;
                 }
                 objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:userInfo:), self, error, downloader.url, userInfo);
             }
-            if([downloader.userInfo objectForKey:@"failure"])
+            if([[downloadInfo objectAtIndex:idx] objectForKey:@"failure"])
             {
-                FailureBlock failure = [downloader.userInfo objectForKey:@"failure"];
+                FailureBlock failure = [[downloadInfo objectAtIndex:idx] objectForKey:@"failure"];
                 failure(nil);
             }
             [downloaders removeObjectAtIndex:idx];
+            [downloadInfo removeObjectAtIndex:idx];
             [downloadDelegates removeObjectAtIndex:idx];
         }
     }

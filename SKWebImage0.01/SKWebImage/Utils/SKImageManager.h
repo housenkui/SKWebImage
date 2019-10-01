@@ -42,6 +42,7 @@ typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
 
 @interface SKImageManager : NSObject<SKImageDownloaderDelegate,SKImageCacheDelegate>
 {
+    NSMutableArray *downloadInfo;
     NSMutableArray *downloadDelegates;
     NSMutableArray *downloaders;
     NSMutableArray *cacheDelegates;

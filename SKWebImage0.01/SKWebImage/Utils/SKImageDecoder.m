@@ -93,7 +93,7 @@
     if (!context) {
         return nil;
     }
-    CGRect rect = (CGRect) {CGPointZero,CGImageGetWidth(imageRef),CGImageGetHeight(imageRef)};
+    CGRect rect = (CGRect) {CGPointZero,{CGImageGetWidth(imageRef),CGImageGetHeight(imageRef)}};
     CGContextDrawImage(context, rect, imageRef);
     CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);

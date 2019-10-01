@@ -272,4 +272,34 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     }
     return size;
 }
+- (NSUInteger)getDiskCount
+{
+    NSUInteger count = 0;
+    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
+    for (NSString *fileName in fileEnumerator)
+    {
+        count += 1;
+    }
+    
+    return count;
+}
+
+- (NSUInteger)getMemorySize
+{
+    int size = 0;
+    
+    for(id key in [memCache allKeys])
+    {
+        UIImage *img = [memCache valueForKey:key];
+        size += [UIImageJPEGRepresentation(img, 0) length]; //错啊 错啦
+    };
+    
+    return size;
+}
+
+- (NSUInteger)getMemoryCount
+{
+    return [[memCache allKeys] count];
+}
+
 @end

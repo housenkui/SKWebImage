@@ -121,6 +121,21 @@ NS_ASSUME_NONNULL_BEGIN
  * Get the size used by the disk cache
  */
 - (unsigned long long)getSize;
+/**
+ * Get the number of images in the disk cache
+ */
+
+- (NSUInteger)getDiskCount;
+
+/**
+ * Get the total size of images in memory cache
+ */
+- (NSUInteger)getMemorySize;
+/**
+ * Get the number of images in the memory cache
+ */
+
+- (NSUInteger)getMemoryCount;
 @end
 
 NS_ASSUME_NONNULL_END

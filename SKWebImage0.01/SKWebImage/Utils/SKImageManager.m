@@ -179,6 +179,15 @@ typedef void (^FailureBlock)(NSError *error);
     {
         objc_msgSend(delegate,@selector(webImageManager:didFinishWithImage:forURL:),self,image,url);
     }
+    if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:forURL:userInfo:)])
+    {
+        NSDictionary *userInfo = [info objectForKey:@"userInfo"];
+        if ([userInfo isKindOfClass:NSNull.class])
+        {
+            userInfo = nil;
+        }
+        [delegate webImageManager:self didFinishWithImage:image forURL:url userInfo:userInfo];
+    }
     if([info objectForKey:@"success"])
     {
         SuccessBlock success = [info objectForKey:@"success"];
@@ -242,8 +251,16 @@ typedef void (^FailureBlock)(NSError *error);
             
             if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:)])
             {
-//                objc_msgSend(delegate, @selector(webImageManager:didProgressWithPartialImage:forURL:),self,image,downloader.url);
                 [delegate webImageManager:self didProgressWithPartialImage:image forURL:downloader.url];
+            }
+            if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:userInfo:)])
+            {
+                NSDictionary *userInfo = [downloader.userInfo objectForKey:@"userInfo"];
+                if ([userInfo isKindOfClass:NSNull.class])
+                {
+                    userInfo = nil;
+                }
+                [delegate webImageManager:self didProgressWithPartialImage:image forURL:downloader.url userInfo:userInfo];
             }
         }
     }
@@ -271,6 +288,15 @@ typedef void (^FailureBlock)(NSError *error);
                 {
                     objc_msgSend(delegate, @selector(webImageManager:didFinishWithImage:forURL:),self,image,downloader.url);
                 }
+                if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:forURL:userInfo:)])
+                {
+                    NSDictionary *userInfo = [downloader.userInfo objectForKey:@"userInfo"];
+                    if ([userInfo isKindOfClass:NSNull.class])
+                    {
+                        userInfo = nil;
+                    }
+                    [delegate webImageManager:self didFinishWithImage:image forURL:downloader.url userInfo:userInfo];
+                }
                 if([downloader.userInfo objectForKey:@"success"])
                 {
                     SuccessBlock success = [downloader.userInfo objectForKey:@"success"];
@@ -286,6 +312,15 @@ typedef void (^FailureBlock)(NSError *error);
                 if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:)])
                 {
                     objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:),self,image,downloader.url);
+                }
+                if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:userInfo:)])
+                {
+                    NSDictionary *userInfo = [downloader.userInfo objectForKey:@"userInfo"];
+                    if ([userInfo isKindOfClass:NSNull.class])
+                    {
+                        userInfo = nil;
+                    }
+                    objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:userInfo:), self, nil, downloader.url, userInfo);
                 }
                 if([downloader.userInfo objectForKey:@"failure"])
                 {
@@ -330,6 +365,15 @@ typedef void (^FailureBlock)(NSError *error);
             if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:)])
             {
                 objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:),self,error,downloader.url);
+            }
+            if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:userInfo:)])
+            {
+                NSDictionary *userInfo = [downloader.userInfo objectForKey:@"userInfo"];
+                if ([userInfo isKindOfClass:NSNull.class])
+                {
+                    userInfo = nil;
+                }
+                objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:userInfo:), self, error, downloader.url, userInfo);
             }
             if([downloader.userInfo objectForKey:@"failure"])
             {

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SKWebImageManagerDelegate.h"
+#import "SKImageManager.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SKWebImagePrefetcher : NSObject<SKWebImageManagerDelegate>
@@ -23,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Maximum number of URLs to prefetch at the same time.Defaults to 3.
  */
 @property (assign,nonatomic)NSUInteger maxConcurrentDownloader;
-
+@property (assign,nonatomic)SKWebImageOptions options;
 + (SKWebImagePrefetcher *)sharedImagePrefetcher;
 
 /**

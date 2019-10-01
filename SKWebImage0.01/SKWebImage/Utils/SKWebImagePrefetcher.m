@@ -12,7 +12,7 @@
 @property (strong,nonatomic) NSArray *prefetchURLs;
 @end
 @implementation SKWebImagePrefetcher
-@synthesize prefetchURLs,maxConcurrentDownloader;
+@synthesize prefetchURLs,maxConcurrentDownloader,options;
 
 + (SKWebImagePrefetcher *)sharedImagePrefetcher
 {
@@ -21,6 +21,7 @@
     dispatch_once(&onceToken, ^{
         instance = [SKWebImagePrefetcher new];
         instance.maxConcurrentDownloader = 3;
+        instance.options = SKWebImageLowPriority;
     });
     return instance;
 }
@@ -31,7 +32,7 @@
         return;
     }
     _requestedCount ++;
-    [imageManager downloadWithURL:[self.prefetchURLs objectAtIndex:index] delegate:self options:SKWebImageLowPriority];
+    [imageManager downloadWithURL:[self.prefetchURLs objectAtIndex:index] delegate:self options:self.options];
 }
 
 - (void)reportStatus

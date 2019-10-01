@@ -133,7 +133,7 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
         
         //Update the data source,we must pass All the data,not just the new bytes
         CGImageSourceRef imageSource = CGImageSourceCreateIncremental(NULL);
-        CGImageSourceUpdateData(imageSource, (CFDataRef)imageData, totalSize == expectedSize);
+        CGImageSourceUpdateData(imageSource, (__bridge CFDataRef)imageData, totalSize == expectedSize);
         
         if (width + height == 0)
         {

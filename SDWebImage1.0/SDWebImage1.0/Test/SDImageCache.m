@@ -9,10 +9,7 @@
 #import "SDImageCache.h"
 #import "SDWebImageDecoder.h"
 #import <CommonCrypto/CommonDigest.h>
-
-#ifdef ENABLE_SDWEBIMAGE_DECODER
 #import "SDWebImageDecoder.h"
-#endif
 
 static NSInteger cacheMaxCacheAge = 60*60*24*7; // 1 week
 
@@ -78,15 +75,13 @@ static SDImageCache *instance;
 
 - (void)dealloc
 {
-    SDWIRelease(memCache);
-    SDWIRelease(diskCachePath);
-    SDWIRelease(cacheInQueue);
+    SDWISafeRelease(memCache);
+    SDWISafeRelease(diskCachePath);
+    SDWISafeRelease(cacheInQueue);
 
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
-#if ! __has_feature(objc_arc)
-    [super dealloc];
-#endif
+    SDWISuperDealoc;
 }
 
 #pragma mark SDImageCache (class methods)
@@ -181,13 +176,12 @@ static SDImageCache *instance;
 
     if (image)
     {
-#ifdef ENABLE_SDWEBIMAGE_DECODER
         UIImage *decodedImage = [UIImage decodedImageWithImage:image];
         if (decodedImage)
         {
             image = decodedImage;
         }
-#endif
+
         [mutableArguments setObject:image forKey:@"image"];
     }
 
@@ -207,7 +201,6 @@ static SDImageCache *instance;
 
     if (toDisk)
     {
-        if (!data) return;
         NSArray *keyWithData;
         if (data)
         {
@@ -252,7 +245,7 @@ static SDImageCache *instance;
 
     if (!image && fromDisk)
     {
-        UIImage *image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
+        image = SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
         if (image)
         {
             [memCache setObject:image forKey:key];
@@ -305,13 +298,22 @@ static SDImageCache *instance;
 
 - (void)removeImageForKey:(NSString *)key
 {
+    [self removeImageForKey:key fromDisk:YES];
+}
+
+- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk
+{
     if (key == nil)
     {
         return;
     }
 
     [memCache removeObjectForKey:key];
-    [[NSFileManager defaultManager] removeItemAtPath:[self cachePathForKey:key] error:nil];
+
+    if (fromDisk)
+    {
+        [[NSFileManager defaultManager] removeItemAtPath:[self cachePathForKey:key] error:nil];
+    }
 }
 
 - (void)clearMemory
@@ -356,6 +358,36 @@ static SDImageCache *instance;
         size += [attrs fileSize];
     }
     return size;
+}
+
+- (int)getDiskCount
+{
+    int count = 0;
+    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
+    for (NSString *fileName in fileEnumerator)
+    {
+        count += 1;
+    }
+    
+    return count;
+}
+
+- (int)getMemorySize
+{
+    int size = 0;
+    
+    for(id key in [memCache allKeys])
+    {
+        UIImage *img = [memCache valueForKey:key];
+        size += [UIImageJPEGRepresentation(img, 0) length];
+    };
+    
+    return size;
+}
+
+- (int)getMemoryCount
+{
+    return [[memCache allKeys] count];
 }
 
 @end

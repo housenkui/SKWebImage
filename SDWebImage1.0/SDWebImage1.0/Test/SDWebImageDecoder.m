@@ -76,11 +76,8 @@ static SDWebImageDecoder *sharedInstance;
 
 - (void)dealloc
 {
-    SDWIRelease(imageDecodingQueue);
-
-#if ! __has_feature(objc_arc)
-    [super dealloc];
-#endif
+    SDWISafeRelease(imageDecodingQueue);
+    SDWISuperDealoc;
 }
 
 + (SDWebImageDecoder *)sharedImageDecoder
@@ -114,12 +111,12 @@ static SDWebImageDecoder *sharedInstance;
     CGColorSpaceRelease(colorSpace);
     if (!context) return nil;
 
-    CGRect rect = (CGRect){CGPointZero, CGImageGetWidth(imageRef), CGImageGetHeight(imageRef)};
+    CGRect rect = (CGRect){CGPointZero,{CGImageGetWidth(imageRef), CGImageGetHeight(imageRef)}};
     CGContextDrawImage(context, rect, imageRef);
     CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
 
-    UIImage *decompressedImage = [[UIImage alloc] initWithCGImage:decompressedImageRef];
+    UIImage *decompressedImage = [[UIImage alloc] initWithCGImage:decompressedImageRef scale:image.scale orientation:UIImageOrientationUp];
     CGImageRelease(decompressedImageRef);
     return SDWIReturnAutoreleased(decompressedImage);
 }

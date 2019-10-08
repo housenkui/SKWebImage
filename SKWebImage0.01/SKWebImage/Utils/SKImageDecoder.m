@@ -79,6 +79,7 @@
 
     CGImageRef imageRef =  image.CGImage;
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
     CGContextRef context = CGBitmapContextCreate(NULL,
                                                  CGImageGetWidth(imageRef),
                                                  CGImageGetHeight(imageRef),
@@ -92,7 +93,7 @@
                                                  //       from the network are jpeg with no alpha channel. As a TODO, finding a way to detect
                                                  //       if alpha channel is necessary would be nice.
 
-                                                 kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Little);
+                                                 alphaInfo | kCGBitmapByteOrder32Little);
     CGColorSpaceRelease(colorSpace);
     if (!context) {
         return nil;

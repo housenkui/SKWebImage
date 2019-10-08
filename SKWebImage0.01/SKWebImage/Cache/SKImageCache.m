@@ -114,7 +114,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     UIImage *image = [arguments objectForKey:@"image"];
     if (image)
     {
-        [memCache setObject:image forKey:key];
+        [memCache setObject:image forKey:key cost:image.size.height * image.size.width *image.scale];
         if ([delegate respondsToSelector:@selector(imageCache:didFindImage:forKey:userInfo:)]) {
             [delegate imageCache:self didFindImage:image forKey:key userInfo:info];
         }
@@ -150,7 +150,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     if (!image || !key) {
         return;
     }
-    [memCache setObject:image forKey:key];
+    [memCache setObject:image forKey:key cost:image.size.height * image.size.width *image.scale];
     if (toDisk)
     {
         NSArray *keyWithData;
@@ -188,7 +188,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     if (!image && fromDisk) {
         image = SKScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]]);
         if (image) {
-            [memCache setObject:image forKey:key];
+            [memCache setObject:image forKey:key cost:image.size.height * image.size.width *image.scale];
         }
     }
     return image;

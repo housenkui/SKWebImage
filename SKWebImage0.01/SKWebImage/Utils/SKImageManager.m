@@ -94,7 +94,7 @@
     [[SKImageCache sharedImageCache]queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
     
 }
-- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate options:(SKWebImageOptions)options success:(void (^)(UIImage * _Nonnull))success failure:(void (^)(NSError * _Nonnull))failure
+- (void)downloadWithURL:(NSURL *)url delegate:(id<SKWebImageManagerDelegate>)delegate options:(SKWebImageOptions)options success:(SKWebImageSuccessBlock)success failure:(SKWebImageFailureBlock)failure
 {
     
     // repeated logic from above due to requirement for backwards compatability for iOS versions without blocks
@@ -121,7 +121,21 @@
     SKWebImageSuccessBlock successCopy = [success copy];
     SKWebImageFailureBlock failureCopy = [failure copy];
     NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithInt:options],@"options",successCopy,@"success",failureCopy,@"failure", nil];
-    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];}
+    [[SKImageCache sharedImageCache]queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];
+    
+}
+
+- (void)removeObjectsForDelegate:(id<SKWebImageManagerDelegate>)delegate
+{
+    //Delegates notified,remove downloader and delegate
+    //The delegate callbacls above may have modified the arrays,hence we search for the correct index
+    NSUInteger idx = [downloadDelegates indexOfObjectIdenticalTo:delegate];
+    if (idx != NSNotFound) {
+        [downloaders removeObjectAtIndex:idx];
+        [downloadInfo removeObjectAtIndex:idx];
+        [downloadDelegates removeObjectAtIndex:idx];
+    }
+}
 
 - (void)cancelForDelegate:(id<SKWebImageManagerDelegate>)delegate
 {
@@ -209,11 +223,14 @@
         SKWebImageSuccessBlock success = [info objectForKey:@"success"];
         success(image,YES);
     }
-    //Remove one instance of delegate from the array,
-    //not all of them (as /removeObjectIndentical:would)
-    //in case multiple requests are issued.
-    [cacheDelegates removeObjectAtIndex:idx];
-    [cacheURLs removeObjectAtIndex:idx];
+    
+    //Delegates notified,remove downloader and delegate
+    //The delegate callbacls above may have modified the arrays,hence we search for the correct index
+    NSUInteger removeIdx = [self indexOfDelegate:delegate waitingForURL:url];
+    if (removeIdx != NSNotFound) {
+        [cacheDelegates removeObjectAtIndex:idx];
+        [cacheURLs removeObjectAtIndex:idx];
+    }
 }
 
 - (void)imageCache:(SKImageCache *)imageCache didNotFindImageForKey:(NSString *)key userInfo:(NSDictionary *)info
@@ -258,12 +275,25 @@
 
 - (void)imageDownloader:(SKImageDownloader *)downloader didUpdatePartialImage:(UIImage *)image
 {
-    for (NSUInteger uidx = [downloaders count] - 1; uidx > 0; uidx --)
-    {
-        SKImageDownloader *aDownloader = [downloaders objectAtIndex:uidx];
-        if (aDownloader == downloader)
-        {
-            id <SKWebImageManagerDelegate>delegate = [downloadDelegates objectAtIndex:uidx];
+    NSMutableArray *notifiedDelegates = [NSMutableArray arrayWithCapacity:downloaders.count];
+    BOOL found = YES;
+    while (found) {
+        found = NO;
+        assert(downloaders.count == downloadDelegates.count);
+        assert(downloaders.count == downloadInfo.count);
+        NSUInteger count = downloaders.count;
+        for (NSUInteger i = count - 1; i > 0; --i) {
+            SKImageDownloader *aDownloader = [downloaders objectAtIndex:i];
+            if (aDownloader != downloader) {
+                continue;
+            }
+            id <SKWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
+            if ([notifiedDelegates containsObject:delegate]) {
+                continue;
+            }
+            // Keep track of delegates notified
+            [notifiedDelegates addObject:delegate];
+            NSDictionary *info = [downloadInfo objectAtIndex:i];
             
             if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:)])
             {
@@ -271,13 +301,16 @@
             }
             if ([delegate respondsToSelector:@selector(webImageManager:didProgressWithPartialImage:forURL:userInfo:)])
             {
-                NSDictionary *userInfo = [[downloadInfo objectAtIndex:uidx] objectForKey:@"userInfo"];
+                NSDictionary *userInfo = [info objectForKey:@"userInfo"];
                 if ([userInfo isKindOfClass:NSNull.class])
                 {
                     userInfo = nil;
                 }
                 [delegate webImageManager:self didProgressWithPartialImage:image forURL:downloader.url userInfo:userInfo];
             }
+            //Delegate notified.Break out and restart loop
+            found = YES;
+            break;
         }
     }
 }
@@ -287,13 +320,19 @@
 {
     SKWebImageOptions options = [[downloader.userInfo objectForKey:@"options"]intValue];
     //notify all the delegates with this downloader
-    for (NSInteger idx = [downloaders count] - 1; idx >= 0; idx --)
-    {
-        SKImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
-        if (aDownloader == downloader)
-        {
-            id <SKWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:idx];
-            
+    BOOL found = YES;
+    while (found) {
+        found = NO;
+        assert(downloaders.count == downloadDelegates.count);
+        assert(downloaders.count == downloadInfo.count);
+        NSUInteger count = downloaders.count;
+        for (NSUInteger i = count - 1; i > 0; --i) {
+            SKImageDownloader *aDownloader = [downloaders objectAtIndex:i];
+            if (aDownloader != downloader) {
+                continue;
+            }
+            id <SKWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
+            NSDictionary *info = [downloadInfo objectAtIndex:i];
             if (image)
             {
                 if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:)])
@@ -306,16 +345,16 @@
                 }
                 if ([delegate respondsToSelector:@selector(webImageManager:didFinishWithImage:forURL:userInfo:)])
                 {
-                    NSDictionary *userInfo = [[downloadInfo objectAtIndex:idx] objectForKey:@"userInfo"];
+                    NSDictionary *userInfo = [info objectForKey:@"userInfo"];
                     if ([userInfo isKindOfClass:NSNull.class])
                     {
                         userInfo = nil;
                     }
                     [delegate webImageManager:self didFinishWithImage:image forURL:downloader.url userInfo:userInfo];
                 }
-                if([[downloadInfo objectAtIndex:idx] objectForKey:@"success"])
+                if([info objectForKey:@"success"])
                 {
-                    SKWebImageSuccessBlock success = [[downloadInfo objectAtIndex:idx]objectForKey:@"success"];
+                    SKWebImageSuccessBlock success = [info objectForKey:@"success"];
                     success(image,NO);
                 }
             }
@@ -331,23 +370,23 @@
                 }
                 if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:userInfo:)])
                 {
-                    NSDictionary *userInfo = [[downloadInfo objectAtIndex:idx] objectForKey:@"userInfo"];
+                    NSDictionary *userInfo = [info objectForKey:@"userInfo"];
                     if ([userInfo isKindOfClass:NSNull.class])
                     {
                         userInfo = nil;
                     }
                     objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:userInfo:), self, nil, downloader.url, userInfo);
                 }
-                if([[downloadInfo objectAtIndex:idx] objectForKey:@"failure"])
+                if([info objectForKey:@"failure"])
                 {
-                    SKWebImageFailureBlock failure = [[downloadInfo objectAtIndex:idx]objectForKey:@"failure"];
+                    SKWebImageFailureBlock failure = [info objectForKey:@"failure"];
                     failure(nil);
                 }
             }
-            
-            [downloaders removeObjectAtIndex:idx];
-            [downloadInfo removeObjectAtIndex:idx];
-            [downloadDelegates removeObjectAtIndex:idx];
+            //Downloader found.Break out and restart for loop
+            [self removeObjectsForDelegate:delegate];
+            found = YES;
+            break;
         }
     }
     if (image)
@@ -364,17 +403,25 @@
         [failedURLs addObject:downloader.url];
     }
     
-    //release the downloader
+    //Release the downloader
     [downloaderForURL removeObjectForKey:downloader.url];
 }
 
 - (void)imageDownloader:(SKImageDownloader *)downloader didFailWithError:(NSError *)error
 {
-    for (NSInteger idx = downloaders.count - 1; idx >= 0; idx--)
-    {
-        SKImageDownloader *aDownloader = [downloaders objectAtIndex:idx];
-        if (aDownloader == downloader) {
-            id <SKWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:idx];
+    BOOL found = YES;
+    while (found) {
+        found = NO;
+        assert(downloaders.count == downloadDelegates.count);
+        assert(downloaders.count == downloadInfo.count);
+        NSUInteger count = downloaders.count;
+        for (NSUInteger i = count - 1; i > 0; --i) {
+            SKImageDownloader *aDownloader = [downloaders objectAtIndex:i];
+            if (aDownloader != downloader) {
+                continue;
+            }
+            id <SKWebImageManagerDelegate> delegate = [downloadDelegates objectAtIndex:i];
+            NSDictionary *info = [downloadInfo objectAtIndex:i];
             if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:)])
             {
                 [delegate performSelector:@selector(webImageManager:didFailWithError:) withObject:self withObject:error];
@@ -385,23 +432,25 @@
             }
             if ([delegate respondsToSelector:@selector(webImageManager:didFailWithError:forURL:userInfo:)])
             {
-                NSDictionary *userInfo = [[downloadInfo objectAtIndex:idx] objectForKey:@"userInfo"];
+                NSDictionary *userInfo = [info objectForKey:@"userInfo"];
                 if ([userInfo isKindOfClass:NSNull.class])
                 {
                     userInfo = nil;
                 }
                 objc_msgSend(delegate, @selector(webImageManager:didFailWithError:forURL:userInfo:), self, error, downloader.url, userInfo);
             }
-            if([[downloadInfo objectAtIndex:idx] objectForKey:@"failure"])
+            if([info objectForKey:@"failure"])
             {
-                SKWebImageFailureBlock failure = [[downloadInfo objectAtIndex:idx] objectForKey:@"failure"];
+                SKWebImageFailureBlock failure = [info objectForKey:@"failure"];
                 failure(error);
             }
-            [downloaders removeObjectAtIndex:idx];
-            [downloadInfo removeObjectAtIndex:idx];
-            [downloadDelegates removeObjectAtIndex:idx];
+            //Downloader found.Break out and restart for loop
+            [self removeObjectsForDelegate:delegate];
+            found = YES;
+            break;
         }
     }
+    //Release the downloader
     [downloaderForURL removeObjectForKey:downloader.url];
 }
 @end

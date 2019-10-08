@@ -79,7 +79,7 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     [connection start];
     
     if (connection) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStartNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStartNotification object:self];
     }
     else {
         if ([delegate respondsToSelector:@selector(imageDownloader:didFailWithError:)])
@@ -194,7 +194,7 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     self.connection = nil;
-    [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:self];
 
     if ([delegate respondsToSelector:@selector(imageDownloaderDidFinish:)])
     {

@@ -15,7 +15,7 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
 - (instancetype)init {
     if (self = [super init]) {
         //Init the memory cache
-        memCache = [[NSMutableDictionary alloc]init];
+        memCache = [[NSCache alloc]init];
         
         //Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
@@ -288,23 +288,4 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     
     return count;
 }
-
-- (NSUInteger)getMemorySize
-{
-    int size = 0;
-    
-    for(id key in [memCache allKeys])
-    {
-        UIImage *img = [memCache valueForKey:key];
-        size += [UIImageJPEGRepresentation(img, 0) length]; //错啊 错啦
-    };
-    
-    return size;
-}
-
-- (NSUInteger)getMemoryCount
-{
-    return [[memCache allKeys] count];
-}
-
 @end

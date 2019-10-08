@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SKImageCache : NSObject
 {
-    NSMutableDictionary *memCache;
+    NSCache *memCache;
     NSString *diskCachePath;
     NSOperationQueue *cacheInQueue,*cacheOutQueue;
 }
@@ -133,16 +133,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 
 - (NSUInteger)getDiskCount;
-
-/**
- * Get the total size of images in memory cache
- */
-- (NSUInteger)getMemorySize;
-/**
- * Get the number of images in the memory cache
- */
-
-- (NSUInteger)getMemoryCount;
 @end
 
 NS_ASSUME_NONNULL_END

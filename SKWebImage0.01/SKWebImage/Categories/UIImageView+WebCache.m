@@ -34,21 +34,21 @@
 }
 
 - (void)setImageWithURL:(NSURL *)url
-                success:(void (^)(UIImage * image))success
-                failure:(void (^)(NSError *error))failure
+                success:(SKWebImageSuccessBlock)success
+                failure:(SKWebImageFailureBlock)failure
 {
     [self setImageWithURL:url placeholderImage:nil options:0 success:success failure:failure];
 }
 
 - (void)setImageWithURL:(NSURL *)url
        placeholderImage:(nullable UIImage *)placeholder
-                success:(void (^)(UIImage * image))success
-                failure:(void (^)(NSError *error))failure
+                success:(SKWebImageSuccessBlock)success
+                failure:(SKWebImageFailureBlock)failure
 {
     [self setImageWithURL:url placeholderImage:placeholder options:0 success:success failure:failure];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SKWebImageOptions)options success:(void (^)(UIImage * _Nonnull))success failure:(void (^)(NSError * _Nonnull))failure
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SKWebImageOptions)options success:(SKWebImageSuccessBlock)success failure:(SKWebImageFailureBlock)failure
 {
     
     SKImageManager *manager = [SKImageManager sharedManager];

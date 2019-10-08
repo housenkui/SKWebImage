@@ -20,6 +20,9 @@ typedef enum
     SKWebImageProgressiveDownload = 1 << 3
 
 }SKWebImageOptions;
+typedef void(^SKWebImageSuccessBlock)(UIImage *image,BOOL cached);
+typedef void(^SKWebImageFailureBlock)(NSError *error);
+
 typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
 /**
  * The SKWebImageManager is the class behind the UIImageView+WebCache category and likes.
@@ -33,7 +36,7 @@ typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
  *  [manager downloadWithURL:imageURL
  *                  delegate:self
  *                   options:0
- *                   success:^(UIImage *image)
+ *                   success:^(UIImage *image,BOOL cached)
  *                   {
  *                       // do something with image
  *                   }
@@ -114,8 +117,8 @@ typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
 - (void)downloadWithURL:(NSURL *)url
                delegate:(id<SKWebImageManagerDelegate>)delegate
                 options:(SKWebImageOptions)options
-                success:(void (^)(UIImage * image))success
-                failure:(void (^)(NSError *error))failure;
+                success:(SKWebImageSuccessBlock)success
+                failure:(SKWebImageFailureBlock)failure;
 
 /**
  * Cancel all pending download requests for a given delegate

@@ -62,6 +62,11 @@ static NSInteger cacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     });
     return instance;
 }
+
++ (void) setMaxCacheAge:(NSInteger)maxCacheAge
+{
+    cacheMaxCacheAge = maxCacheAge;
+}
 #pragma mark SKImageCache (private)
 - (NSString *)cachePathForKey:(NSString *)key
 {

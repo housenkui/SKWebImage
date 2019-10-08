@@ -10,8 +10,6 @@
 #import "SKImageCache.h"
 #import "SKImageDownloader.h"
 #import <objc/message.h>
-typedef void (^SuccessBlock)(UIImage *image);
-typedef void (^FailureBlock)(NSError *error);
 
 @interface SKImageManager ()
 @end
@@ -120,8 +118,8 @@ typedef void (^FailureBlock)(NSError *error);
     [cacheDelegates addObject:delegate];
     [cacheURLs addObject:url];
     
-    SuccessBlock successCopy = [success copy];
-    FailureBlock failureCopy = [failure copy];
+    SKWebImageSuccessBlock successCopy = [success copy];
+    SKWebImageFailureBlock failureCopy = [failure copy];
     NSDictionary *info = [NSMutableDictionary dictionaryWithObjectsAndKeys:delegate,@"delegate",url,@"url",[NSNumber numberWithInt:options],@"options",successCopy,@"success",failureCopy,@"failure", nil];
     [[SKImageCache sharedImageCache]queryDiskCacheForKey:[self cacheKeyForURL:url] delegate:self userInfo:info];}
 
@@ -196,8 +194,8 @@ typedef void (^FailureBlock)(NSError *error);
     }
     if([info objectForKey:@"success"])
     {
-        SuccessBlock success = [info objectForKey:@"success"];
-        success(image);
+        SKWebImageSuccessBlock success = [info objectForKey:@"success"];
+        success(image,YES);
     }
     //Remove one instance of delegate from the array,
     //not all of them (as /removeObjectIndentical:would)
@@ -305,8 +303,8 @@ typedef void (^FailureBlock)(NSError *error);
                 }
                 if([[downloadInfo objectAtIndex:idx] objectForKey:@"success"])
                 {
-                    SuccessBlock success = [[downloadInfo objectAtIndex:idx]objectForKey:@"success"];
-                    success(image);
+                    SKWebImageSuccessBlock success = [[downloadInfo objectAtIndex:idx]objectForKey:@"success"];
+                    success(image,NO);
                 }
             }
             else
@@ -330,7 +328,7 @@ typedef void (^FailureBlock)(NSError *error);
                 }
                 if([[downloadInfo objectAtIndex:idx] objectForKey:@"failure"])
                 {
-                    FailureBlock failure = [[downloadInfo objectAtIndex:idx]objectForKey:@"failure"];
+                    SKWebImageFailureBlock failure = [[downloadInfo objectAtIndex:idx]objectForKey:@"failure"];
                     failure(nil);
                 }
             }
@@ -384,8 +382,8 @@ typedef void (^FailureBlock)(NSError *error);
             }
             if([[downloadInfo objectAtIndex:idx] objectForKey:@"failure"])
             {
-                FailureBlock failure = [[downloadInfo objectAtIndex:idx] objectForKey:@"failure"];
-                failure(nil);
+                SKWebImageFailureBlock failure = [[downloadInfo objectAtIndex:idx] objectForKey:@"failure"];
+                failure(error);
             }
             [downloaders removeObjectAtIndex:idx];
             [downloadInfo removeObjectAtIndex:idx];

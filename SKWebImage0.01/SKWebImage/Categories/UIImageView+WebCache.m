@@ -63,9 +63,11 @@
 - (void)webImageManager:(SKImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url
 {
     self.image = image;
+    [self setNeedsLayout];
 }
 - (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image{
-        self.image = image;
+    self.image = image;
+    [self setNeedsLayout];//work not well
 }
 
 - (void)cancelCurrentImageLoad {

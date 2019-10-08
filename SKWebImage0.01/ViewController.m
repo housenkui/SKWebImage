@@ -60,7 +60,7 @@ static NSString *url05 = @"https://www.tuchuang001.com/images/2017/05/02/1.png";
 }
 - (NSMutableArray *)dataArray {
     if (!_dataArray) {
-        _dataArray = [[NSMutableArray alloc]initWithObjects:url00,url01,url02,url03,url04,url05,nil];
+        _dataArray = [[NSMutableArray alloc]initWithObjects:url00,url01,url02,url03,url04,nil];
     }
     return _dataArray;
 }
@@ -76,7 +76,7 @@ static NSString *url05 = @"https://www.tuchuang001.com/images/2017/05/02/1.png";
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     
-    return 6;
+    return 5;
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 2;
@@ -85,12 +85,12 @@ static NSString *url05 = @"https://www.tuchuang001.com/images/2017/05/02/1.png";
     
     UITableViewCell *cell  =[tableView dequeueReusableCellWithIdentifier:REUSEID];
     UIImage *placeholder = [UIImage imageNamed:@"placeholder.jpeg"];
-//    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:placeholder];
-    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:placeholder options:0 success:^(UIImage * _Nonnull image) {
-        NSLog(@"cellForRowAtIndexPath");
-    } failure:^(NSError * _Nonnull error) {
-        
-    }];
+    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:nil];
+//    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:placeholder options:0 success:^(UIImage * _Nonnull image) {
+//        NSLog(@"cellForRowAtIndexPath");
+//    } failure:^(NSError * _Nonnull error) {
+//
+//    }];
 
     cell.textLabel.text = [NSString stringWithFormat:@"{%ld-%ld}",(long)indexPath.section,(long)indexPath.row];
     return cell;

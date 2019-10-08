@@ -85,8 +85,9 @@
     BOOL imageHasAlphaInfo = (alphaInfo != kCGImageAlphaNone &&
                               alphaInfo != kCGImageAlphaNoneSkipFirst &&
                               alphaInfo != kCGImageAlphaNoneSkipLast);
-    int bytesPerPixel = imageHasAlphaInfo ? 4 : 3;
-    CGBitmapInfo bitmapInfo = imageHasAlphaInfo ? kCGImageAlphaPremultipliedLast:kCGImageAlphaNone;
+    int bytesPerPixel = alphaInfo != kCGImageAlphaNone ? 4 : 3;
+    CGBitmapInfo bitmapInfo = imageHasAlphaInfo ? kCGImageAlphaPremultipliedLast:alphaInfo;
+    
     CGContextRef context = CGBitmapContextCreate(NULL,
                                                  CGImageGetWidth(imageRef),
                                                  CGImageGetHeight(imageRef),

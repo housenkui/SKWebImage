@@ -34,7 +34,8 @@
 }
 
 - (void)cancelCurrentImageLoad {
-    
-    [[SKImageManager sharedManager] cancelForDelegate:self];
+    @synchronized (self) {
+        [[SKImageManager sharedManager] cancelForDelegate:self];
+    }
 }
 @end

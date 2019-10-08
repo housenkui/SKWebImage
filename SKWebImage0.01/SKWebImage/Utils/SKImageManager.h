@@ -127,6 +127,11 @@ typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
  */
 
 - (void)cancelForDelegate:(id <SKWebImageManagerDelegate>)delegate;
+
+/**
+ Cancel all current operations
+ */
+- (void)cancelAll;
 @end
 
 NS_ASSUME_NONNULL_END

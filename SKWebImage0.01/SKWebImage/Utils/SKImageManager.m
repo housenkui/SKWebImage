@@ -149,7 +149,19 @@
         }
     }
 }
-
+- (void)cancelAll
+{
+    for (SKImageDownloader *downloader in downloaders) {
+        [downloader cancel];
+    }
+    [cacheDelegates removeAllObjects];
+    [cacheURLs removeAllObjects];
+    
+    [downloadInfo removeAllObjects];
+    [downloadDelegates removeAllObjects];
+    [downloaders removeAllObjects];
+    [downloaderForURL removeAllObjects];
+}
 #pragma mark SKImageCacheDelegate
 - (NSUInteger)indexOfDelegate:(id <SKWebImageManagerDelegate>)delegate waitingForURL:(NSURL *) url
 {

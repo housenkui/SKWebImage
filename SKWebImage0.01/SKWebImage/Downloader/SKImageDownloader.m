@@ -71,7 +71,7 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
 }
 - (void)start {
     [[self class] defaultRunLoopMode];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:30];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLCacheStorageNotAllowed timeoutInterval:30];
     self.connection = [[NSURLConnection alloc]initWithRequest:request delegate:self startImmediately:NO];
     if (!lowPriority) {
         [connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];

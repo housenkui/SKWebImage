@@ -218,6 +218,13 @@ NSString * const SKWebImageDownloadStopNotification = @"SKWebImageDownloadStopNo
     self.connection = nil;
     self.imageData = nil;
 }
+
+//prevent caching of responses in Cache.db
+- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
+{
+    return nil;
+}
+
 #pragma mark SKWebImageDecoderDelegate
 
 - (void)imageDecoder:(SKImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)userInfo

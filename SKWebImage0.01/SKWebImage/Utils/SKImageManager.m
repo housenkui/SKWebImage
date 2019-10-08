@@ -107,6 +107,10 @@ typedef void (^FailureBlock)(NSError *error);
     {
         url = [NSURL URLWithString:(NSString *)url];
     }
+    else if (![url isKindOfClass:NSURL.class])
+    {
+        url = nil;//// Prevent some common crashes due to common wrong values passed like NSNull.null for instance
+    }
     
     if (!url || !delegate || (!(options & SKWebImageRetryFailed) && [failedURLs containsObject:url]))
     {

@@ -9,7 +9,7 @@
 #import "SKImageCache.h"
 #import "SKImageDecoder.h"
 #import <CommonCrypto/CommonDigest.h>
-const char *kDiskIOQueueName = "com.github.SKWebImageDiskCache";
+
 static NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
 
 @interface SKImageCache ()
@@ -87,8 +87,7 @@ static NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width *image.scale];
     if (toDisk)
     {
-        dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-        dispatch_async(queue, ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
             NSData *data = imageData;
             if (!data) {
                 if (image) {
@@ -132,9 +131,8 @@ static NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
         return;
     }
     NSString *path = [self cachePathForKey:key];
-    dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-    dispatch_io_t ioChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM, path.UTF8String, O_RDONLY, 0, queue, nil);
-    dispatch_io_read(ioChannel, 0, SIZE_MAX, queue, ^(bool done, dispatch_data_t  _Nullable data, int error) {
+    dispatch_io_t ioChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM, path.UTF8String, O_RDONLY, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), nil);
+    dispatch_io_read(ioChannel, 0, SIZE_MAX, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(bool done, dispatch_data_t  _Nullable data, int error) {
         if (error) {
             if (error != 2) {
                 NSLog(@"SKWebImageCache:Error reading image from disk cache:error = %d",error);
@@ -169,8 +167,7 @@ static NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     }
     [self.memCache removeObjectForKey:key];
     if (fromDisk) {
-        dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-        dispatch_async(queue, ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
             [[NSFileManager defaultManager]removeItemAtPath:[self cachePathForKey:key] error:nil];
         });
     }
@@ -181,16 +178,14 @@ static NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
     [self.memCache removeAllObjects];
 }
 - (void)clearDisk {
-    dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-    dispatch_async(queue, ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [[NSFileManager defaultManager]removeItemAtPath:self.diskCachePath error:nil];
         [[NSFileManager defaultManager]createDirectoryAtPath:self.diskCachePath withIntermediateDirectories:YES attributes:nil error:nil];
     });
 }
 #pragma mark ---清除一周内没有使用的图片
 - (void)cleanDisk {
-    dispatch_queue_t queue = dispatch_queue_create(kDiskIOQueueName, nil);
-    dispatch_async(queue, ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];
         NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:self.diskCachePath];
         

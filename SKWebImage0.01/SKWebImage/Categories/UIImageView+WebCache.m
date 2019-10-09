@@ -37,11 +37,18 @@ static char operationKey;
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SKWebImageOptions)options completed:(nonnull SKWebImageCompletedBlock)completedBlock
 {
+    [self setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
+
+}
+
+
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SKWebImageOptions)options progress:(SKWebImageDownloaderProgressBlock)progressBlock completed:(SKWebImageCompletedBlock)completedBlock
+{
     NSLog(@"setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder");
     [self cancelCurrentImageLoad];
     self.image = placeholder;
     if (url) {
-        id <SKWebImageOperation>operation = [SKImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL fromCache) {
+        id <SKWebImageOperation>operation = [SKImageManager.sharedManager downloadWithURL:url options:options progress:progressBlock completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL fromCache) {
             if (image) {
                 self.image = image;
                 [self setNeedsLayout];
@@ -53,7 +60,6 @@ static char operationKey;
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
-
 - (void)cancelCurrentImageLoad {
    //Cancel in progress downloader from queue
     id <SKWebImageOperation> operation = objc_getAssociatedObject(self, &operationKey);

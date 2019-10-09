@@ -99,7 +99,12 @@ NSString * const kCompletedCallbackKey = @"completed";
             self.URLCallbacks[url] = callbacksForURL;
         }
         if (performDownload) {
-            NSURLRequest *request = [[NSURLRequest alloc]initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
+//            NSURLRequest *request = [[NSURLRequest alloc]initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
+            NSMutableURLRequest *request = [NSMutableURLRequest.alloc initWithURL:url cachePolicy:NSURLCacheStorageNotAllowed timeoutInterval:15];
+            request.HTTPShouldHandleCookies = NO;
+            request.HTTPShouldUsePipelining = YES;
+            [request addValue:@"image/*" forHTTPHeaderField:@"Accept"];
+
             operation = [SKWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receiveSize, long long expectedSize) {
                 
                 dispatch_async(dispatch_get_main_queue(), ^{

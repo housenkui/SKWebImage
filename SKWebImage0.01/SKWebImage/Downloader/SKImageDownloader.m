@@ -127,6 +127,10 @@ NSString * const kCompletedCallbackKey = @"completed";
                         }
                     }
                 });
+            } cancelled:^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.URLCallbacks removeObjectForKey:url];
+                });
             }];
             [self.downloadQueue addOperation:operation];
         }

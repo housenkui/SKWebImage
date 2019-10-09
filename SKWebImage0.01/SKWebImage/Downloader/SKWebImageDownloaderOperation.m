@@ -12,7 +12,7 @@
 @interface SKWebImageDownloaderOperation ()
 @property (copy,nonatomic) SKWebImageDownloaderProgressBlock progressBlock;
 @property (nonatomic,copy) SKWebImageDownloaderCompletedBlock completedBlock;
-
+@property (nonatomic,copy) void (^cancelBlock)(void);
 @property (assign,nonatomic,getter= isExecuting)BOOL executing;
 @property (assign,nonatomic,getter= isFinished)BOOL finished;
 @property (assign,nonatomic)long long expectedSize;
@@ -27,13 +27,14 @@
 @synthesize executing = _executing;
 @synthesize finished = _finished;
 
-- (instancetype)initWithRequest:(NSURLRequest *)request options:(SKWebImageDownloaderOptions)options progress:(SKWebImageDownloaderProgressBlock)progressBlock completed:(SKWebImageDownloaderCompletedBlock)completedBlock
+- (instancetype)initWithRequest:(NSURLRequest *)request options:(SKWebImageDownloaderOptions)options progress:(SKWebImageDownloaderProgressBlock)progressBlock completed:(SKWebImageDownloaderCompletedBlock)completedBlock cancelled:(nonnull void (^)(void))cancelBlock
 {
     if (self = [super init]) {
         _request = request;
         _options = options;
         _progressBlock = progressBlock;
         _completedBlock = completedBlock;
+        _cancelBlock = cancelBlock;
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
@@ -74,6 +75,8 @@
         return;
     }
     [super cancel];
+    if (self.cancelBlock) self.cancelBlock();
+    
     if (self.connect) {
         [self.connect cancel];
         [[NSNotificationCenter defaultCenter]postNotificationName:SKWebImageDownloadStopNotification object:self];
@@ -83,18 +86,12 @@
         if (!self.isFinished) self.finished = YES;
         if (self.isExecuting) self.executing = NO;
     }
-    self.connect = nil;
-    self.imageData = nil;
 }
 
 - (void)done
 {
     self.finished = YES;
     self.executing = NO;
-    self.completedBlock = nil;
-    self.progressBlock = nil;
-    self.connect = nil;
-    self.imageData = nil;
 }
 
 - (void)setFinished:(BOOL)finished
@@ -102,6 +99,13 @@
     [self willChangeValueForKey:@"isFinished"];
     _finished = finished;
     [self didChangeValueForKey:@"isFinished"];
+    if (finished) {
+        self.cancelBlock = nil;
+        self.completedBlock = nil;
+        self.progressBlock = nil;
+        self.connect = nil;
+        self.imageData = nil;
+    }
 }
 
 - (void)setExecuting:(BOOL)executing

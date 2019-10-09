@@ -7,15 +7,22 @@
 //
 
 #import "ViewController.h"
+#import "UIImageView+WebCache.h"
+static NSString *url03 = @"http://b-ssl.duitang.com/uploads/item/201705/13/20170513174746_dGwY3.jpeg";
 
 @interface ViewController ()
+@property (weak, nonatomic) IBOutlet UIImageView *image01;
 
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
+    [self.image01 setImageWithURL:[NSURL URLWithString:url03] completed:^(UIImage *image, NSError *error, BOOL fromCache) {
+        
+    }];
     // Do any additional setup after loading the view.
 }
 

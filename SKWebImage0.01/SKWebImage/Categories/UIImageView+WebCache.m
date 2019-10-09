@@ -7,8 +7,12 @@
 //
 
 #import "UIImageView+WebCache.h"
+#import "objc/runtime.h"
+
+static char operationKey;
 
 @implementation UIImageView (WebCache)
+
 - (void)setImageWithURL:(NSURL *)url
 {
     return [self setImageWithURL:url placeholderImage:nil];
@@ -21,58 +25,41 @@
 }
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(nullable UIImage *)placeholder options:(SKWebImageOptions)options
 {
-    SKImageManager *manager = [SKImageManager sharedManager];
-    
-    //Remove in progress downloader from queue
-    [manager cancelForDelegate:self];
+    [self setImageWithURL:url placeholderImage:placeholder options:options completed:nil];
+}
+
+- (void)setImageWithURL:(NSURL *)url completed:(SKWebImageCompletedBlock)completedBlock
+{
+    [self setImageWithURL:url placeholderImage:nil options:0 completed:completedBlock];
+}
+
+
+
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SKWebImageOptions)options completed:(nonnull SKWebImageCompletedBlock)completedBlock
+{
+    NSLog(@"setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder");
+    [self cancelCurrentImageLoad];
     self.image = placeholder;
-    
-    if (url)
-    {
-        [manager downloadWithURL:url delegate:self options:options];
+    if (url) {
+        id <SKWebImageOperation>operation = [SKImageManager.sharedManager downloadWithURL:url options:options progress:nil completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL fromCache) {
+            if (image) {
+                self.image = image;
+                [self setNeedsLayout];
+            }
+            if (completedBlock) {
+                completedBlock(image,error,fromCache);
+            }
+        }];
+        objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
-}
-
-- (void)setImageWithURL:(NSURL *)url
-                success:(SKWebImageSuccessBlock)success
-                failure:(SKWebImageFailureBlock)failure
-{
-    [self setImageWithURL:url placeholderImage:nil options:0 success:success failure:failure];
-}
-
-- (void)setImageWithURL:(NSURL *)url
-       placeholderImage:(nullable UIImage *)placeholder
-                success:(SKWebImageSuccessBlock)success
-                failure:(SKWebImageFailureBlock)failure
-{
-    [self setImageWithURL:url placeholderImage:placeholder options:0 success:success failure:failure];
-}
-
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SKWebImageOptions)options success:(SKWebImageSuccessBlock)success failure:(SKWebImageFailureBlock)failure
-{
-    
-    SKImageManager *manager = [SKImageManager sharedManager];
-    //Remove in progress downloader from queue
-    [manager cancelForDelegate:self];
-    self.image = placeholder;
-    if (url)
-    {
-        [manager downloadWithURL:url delegate:self options:options success:success failure:failure];
-    }
-}
-- (void)webImageManager:(SKImageManager *)imageManager didProgressWithPartialImage:(UIImage *)image forURL:(NSURL *)url
-{
-    self.image = image;
-    [self setNeedsLayout];//work not well
-}
-- (void)webImageManager:(SKImageManager *)imagerManager didFinishWithImage:(UIImage *)image{
-    self.image = image;
-    [self setNeedsLayout];//work not well
 }
 
 - (void)cancelCurrentImageLoad {
-    @synchronized (self) {
-        [[SKImageManager sharedManager] cancelForDelegate:self];
+   //Cancel in progress downloader from queue
+    id <SKWebImageOperation> operation = objc_getAssociatedObject(self, &operationKey);
+    if (operation) {
+        [operation cancel];
+        objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
 @end

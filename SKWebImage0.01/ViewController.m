@@ -74,24 +74,23 @@ static NSString *url05 = @"https://www.tuchuang001.com/images/2017/05/02/1.png";
     }
     return _tableView;
 }
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return 5;
+    return 1;
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return 1;
 }
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    
+    NSLog(@"cellForRowAtIndexPath");
+
     UITableViewCell *cell  =[tableView dequeueReusableCellWithIdentifier:REUSEID];
     UIImage *placeholder = [UIImage imageNamed:@"placeholder.jpeg"];
 //    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:nil];
-    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:placeholder options:0 success:^(UIImage * _Nonnull image,BOOL cache) {
-        NSLog(@"cellForRowAtIndexPath");
-    } failure:^(NSError * _Nonnull error) {
-
+    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:placeholder options:0 completed:^(UIImage * _Nonnull image, NSError * _Nonnull error, BOOL fromCache) {
+//        NSLog(@"cellForRowAtIndexPath");
     }];
-
     cell.textLabel.text = [NSString stringWithFormat:@"{%ld-%ld}",(long)indexPath.section,(long)indexPath.row];
     return cell;
 }

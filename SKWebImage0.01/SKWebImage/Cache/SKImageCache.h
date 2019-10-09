@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "SKImageCacheDelegate.h"
+#import "SKWebImageCompat.h"
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -16,11 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
  * asynchronous so it doesn’t add unnecessary latency to the UI.
  */
 @interface SKImageCache : NSObject
-{
-    NSCache *memCache;
-    NSString *diskCachePath;
-    NSOperationQueue *cacheInQueue,*cacheOutQueue;
-}
+@property (assign,nonatomic) NSUInteger maxCacheAge;
 /**
  * Returns global shared cache instance
  *
@@ -28,12 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SKImageCache *)sharedImageCache;
 
-/**
- Sets the global maximum cache age
 
- @param maxCacheAge The maximum length of time to keep an image in the cache,in seconds
+/**
+ Init a new cache store with a specific namespace
+
+ @param ns The namespace to use for this cache store.
+ @return <#return value description#>
  */
-+ (void)setMaxCacheAge:(NSInteger)maxCacheAge;
+- (instancetype)initWithNamespace:(NSString *)ns;
 /**
  * Store an image into memory and disk cache at the given key.
  *
@@ -64,36 +62,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key imageData:(nullable NSData *)data toDisk:(BOOL)toDisk;
 
 /**
- * Query the memory cache for an image at a given key and fallback to disk cache
- * synchronousely if not found in memory.
- *
- * @warning This method may perform some synchronous IO operations
- *
- * @param key The unique key used to store the wanted image
+ Query the disk cache asynchronously.
+
+ @param key The unique cache asynchronousely.
+ @param downBlock <#downBlock description#>
  */
-- (UIImage *)imageFromKey:(NSString *)key;
-
-/**
- * Query the memory cache for an image at a given key and optionnaly fallback to disk cache
- * synchronousely if not found in memory.
- *
- * @warning This method may perform some synchronous IO operations if fromDisk is YES
- *
- * @param key The unique key used to store the wanted image
- * @param fromDisk Try to retrive the image from disk if not found in memory if YES
- */
-- (UIImage *)imageFromKey:(NSString *)key fromDisk:(BOOL)fromDisk;
-
-
-/**
- * Query the disk cache asynchronousely.
- *
- * @param key The unique key used to store the wanted image
- * @param delegate The delegate object to send response to
- * @param info An NSDictionary with some user info sent back to the delegate
- */
-
-- (void)queryDiskCacheForKey:(NSString *)key delegate:(id <SKImageCacheDelegate>) delegate userInfo:(NSDictionary *)info;
+- (void)queryDiskCacheForKey:(NSString *)key down:(void (^)(UIImage *image))downBlock;
 /**
  * Remove the image from memory and disk cache synchronousely
  *

@@ -79,42 +79,42 @@
     NSLog(@"-----%@---- %@-",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode]);
 
     CGImageRef imageRef =  image.CGImage;
-//    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
     
     BOOL imageHasAlphaInfo = (alphaInfo != kCGImageAlphaNone &&
                               alphaInfo != kCGImageAlphaNoneSkipFirst &&
                               alphaInfo != kCGImageAlphaNoneSkipLast);
-//    int bytesPerPixel = alphaInfo != kCGImageAlphaNone ? 4 : 3;
-//    CGBitmapInfo bitmapInfo = imageHasAlphaInfo ? kCGImageAlphaPremultipliedLast:alphaInfo;
-//
-//    CGContextRef context = CGBitmapContextCreate(NULL,
-//                                                 CGImageGetWidth(imageRef),
-//                                                 CGImageGetHeight(imageRef),
-//                                                 8,
-//                                                 // Just always return width * bytesPerPixel will be enough
-//                                                 CGImageGetWidth(imageRef) * bytesPerPixel,
-//                                                 //System only supports RGB,set explicitly
-//                                                 colorSpace,
-//                                                 bitmapInfo);
-//    CGColorSpaceRelease(colorSpace);
-//    if (!context) {
-//        return nil;
-//    }
-    UIGraphicsBeginImageContextWithOptions(image.size, !imageHasAlphaInfo, 0);
+    int bytesPerPixel = alphaInfo != kCGImageAlphaNone ? 4 : 3;
+    CGBitmapInfo bitmapInfo = imageHasAlphaInfo ? kCGImageAlphaPremultipliedLast:alphaInfo;
+
+    CGContextRef context = CGBitmapContextCreate(NULL,
+                                                 CGImageGetWidth(imageRef),
+                                                 CGImageGetHeight(imageRef),
+                                                 8,
+                                                 // Just always return width * bytesPerPixel will be enough
+                                                 CGImageGetWidth(imageRef) * bytesPerPixel,
+                                                 //System only supports RGB,set explicitly
+                                                 colorSpace,
+                                                 bitmapInfo);
+    CGColorSpaceRelease(colorSpace);
+    if (!context) {
+        return nil;
+    }
+//    UIGraphicsBeginImageContextWithOptions(image.size, !imageHasAlphaInfo, 0);
     CGRect rect = (CGRect) {.origin = CGPointZero,.size = image.size};
-    [image drawInRect:rect];
-    UIImage *decompressedImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
+//    [image drawInRect:rect];
+//    UIImage *decompressedImage = UIGraphicsGetImageFromCurrentImageContext();
+//    UIGraphicsEndImageContext();
     
-//    CGContextDrawImage(context, rect, imageRef);
-//    CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
-//    CGContextRelease(context);
+    CGContextDrawImage(context, rect, imageRef);
+    CGImageRef decompressedImageRef = CGBitmapContextCreateImage(context);
+    CGContextRelease(context);
 //
-//    UIImage *decompressedImage = [[UIImage alloc]initWithCGImage:decompressedImageRef scale:image.scale orientation:image.imageOrientation];
-//    CGImageRelease(decompressedImageRef);
-//    NSLog(@"decodedImageWithImage end %@",[NSThread currentThread]);
-//
+    UIImage *decompressedImage = [[UIImage alloc]initWithCGImage:decompressedImageRef scale:image.scale orientation:image.imageOrientation];
+    CGImageRelease(decompressedImageRef);
+    NSLog(@"decodedImageWithImage end %@",[NSThread currentThread]);
+
     return decompressedImage;
 }
 

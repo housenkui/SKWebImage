@@ -54,6 +54,7 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
+        NSLog(@"_diskCachePath = %@",_diskCachePath);
 
 #if TARGET_OS_IPHONE
         // Subscribe to app events

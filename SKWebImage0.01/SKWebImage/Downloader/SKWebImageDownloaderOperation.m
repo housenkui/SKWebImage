@@ -50,12 +50,10 @@
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.connect = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
-        [self.connect scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-        [self.connect start];
+        
         self.executing = YES;
         self.connect = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
-        
+
         //If not in low priority mode,ensure we aren't blocked by UI manipulations(default runloop mode for NSURLConnection is NSEventTrackingRunLoopMode)
         
         if (!(self.options & SKWebImageDownloaderlowPriority)) {
@@ -149,88 +147,96 @@
 }
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    [self.imageData appendData:data];
-    //这里data.length 数值和什么有关系，最大值是多少？
-    NSLog(@"-----%@---- %@----%lu",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode],data.length);
-    //一下是图片解码的操作绝对不能放在主线程
-    if ((self.options & SKWebImageDownloaderProgressiveDownload) && self.expectedSize > 0 && self.completedBlock)
-    {
-        //Get the total bytes downloaded
-        const NSUInteger totalSize = [self.imageData length];
-        
-        //Update the data source,we must pass All the data,not just the new bytes
-        CGImageSourceRef imageSource = CGImageSourceCreateIncremental(NULL);
-        CGImageSourceUpdateData(imageSource, (__bridge CFDataRef)self.imageData, totalSize == self.expectedSize);
-        
-        if (width + height == 0)
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [self.imageData appendData:data];
+        //这里data.length 数值和什么有关系，最大值是多少？
+        NSLog(@"-----%@---- %@----%lu",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode],data.length);
+        //一下是图片解码的操作绝对不能放在主线程
+        if ((self.options & SKWebImageDownloaderProgressiveDownload) && self.expectedSize > 0 && self.completedBlock)
         {
-            CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
-            if (properties)
-            {
-                CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
-                if (val) {
-                    CFNumberGetValue(val, kCFNumberLongType, &height);
-                }
-                val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
-                if (val) {
-                    CFNumberGetValue(val, kCFNumberLongType, &width);
-                }
-                CFRelease(properties);
-            }
-        }
-        
-        if (width + height > 0 && totalSize < self.expectedSize)
-        {
-            // Create the image
-            CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
+            //Get the total bytes downloaded
+            const NSUInteger totalSize = [self.imageData length];
             
-            if (partialImageRef)
+            //Update the data source,we must pass All the data,not just the new bytes
+            CGImageSourceRef imageSource = CGImageSourceCreateIncremental(NULL);
+            CGImageSourceUpdateData(imageSource, (__bridge CFDataRef)self.imageData, totalSize == self.expectedSize);
+            
+            if (self->width + self->height == 0)
             {
-                const size_t partialHeight = CGImageGetHeight(partialImageRef);
-                CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-                CGContextRef bmContext = CGBitmapContextCreate(NULL, width, height, 8, width*4, colorSpace, kCGBitmapByteOrderDefault|kCGImageAlphaPremultipliedFirst);
-                CGColorSpaceRelease(colorSpace);
-                if (bmContext)
+                CFDictionaryRef properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
+                if (properties)
                 {
-                    CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f,.origin.y = 0.0f,.size.width = width,.size.height = partialHeight}, partialImageRef);
-                    CGImageRelease(partialImageRef);
-                    partialImageRef = CGBitmapContextCreateImage(bmContext);
-                    CGContextRelease(bmContext);
-                }
-                else
-                {
-                    CGImageRelease(partialImageRef);
-                    partialImageRef = nil;
+                    CFTypeRef val = CFDictionaryGetValue(properties, kCGImagePropertyPixelHeight);
+                    if (val) {
+                        CFNumberGetValue(val, kCFNumberLongType, &self->height);
+                    }
+                    val = CFDictionaryGetValue(properties, kCGImagePropertyPixelWidth);
+                    if (val) {
+                        CFNumberGetValue(val, kCFNumberLongType, &self->width);
+                    }
+                    CFRelease(properties);
                 }
             }
-            if (partialImageRef) {
-                UIImage *image = [UIImage decodedImageWithImage:SKScaledImageForPath(self.request.URL.absoluteString, [UIImage imageWithCGImage:partialImageRef])];
-                CGImageRelease(partialImageRef);
-                self.completedBlock(image, nil, NO);
+            
+            if (self->width + self->height > 0 && totalSize < self.expectedSize)
+            {
+                // Create the image
+                CGImageRef partialImageRef = CGImageSourceCreateImageAtIndex(imageSource, 0, NULL);
+                
+                if (partialImageRef)
+                {
+                    const size_t partialHeight = CGImageGetHeight(partialImageRef);
+                    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+                    CGContextRef bmContext = CGBitmapContextCreate(NULL, self->width, self->height, 8, self->width*4, colorSpace, kCGBitmapByteOrderDefault|kCGImageAlphaPremultipliedFirst);
+                    CGColorSpaceRelease(colorSpace);
+                    if (bmContext)
+                    {
+                        CGContextDrawImage(bmContext, (CGRect){.origin.x = 0.0f,.origin.y = 0.0f,.size.width = self->width,.size.height = partialHeight}, partialImageRef);
+                        CGImageRelease(partialImageRef);
+                        partialImageRef = CGBitmapContextCreateImage(bmContext);
+                        CGContextRelease(bmContext);
+                    }
+                    else
+                    {
+                        CGImageRelease(partialImageRef);
+                        partialImageRef = nil;
+                    }
+                }
+                if (partialImageRef) {
+                    UIImage *image = [UIImage decodedImageWithImage:SKScaledImageForPath(self.request.URL.absoluteString, [UIImage imageWithCGImage:partialImageRef])];
+                    CGImageRelease(partialImageRef);
+                    self.completedBlock(image, nil, NO);
+                }
             }
+            CFRelease(imageSource);
         }
-        CFRelease(imageSource);
-    }
+    });
+
+   
 }
 
 #pragma GCC diagnostic ignored "-Wundeclared-selector"
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     self.connect = nil;
-    [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:self];
     
-    if (self.completedBlock) {
-        __block SKWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
-        UIImage *image = SKScaledImageForPath(self.request.URL.absoluteString, self.imageData);
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            UIImage *decodedImage = [UIImage decodedImageWithImage:image];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:nil];
+        
+        if (self.completedBlock) {
+            
+            __block SKWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
+            UIImage *image = [UIImage decodedImageWithImage:SKScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
             dispatch_async(dispatch_get_main_queue(), ^{
-                completionBlock(decodedImage,nil,YES);
+                
+                completionBlock(image,nil,YES);
                 completionBlock = nil;
             });
-        });
-    }
-    [self done];
+        }
+        [self done];
+    });
+    
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error

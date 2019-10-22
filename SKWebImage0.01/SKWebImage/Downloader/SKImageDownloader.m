@@ -98,7 +98,7 @@ NSString * const kCompletedCallbackKey = @"completed";
         
         operation = [SKWebImageDownloaderOperation.alloc initWithRequest:request queue:self.workingQueue options:options progress:^(NSUInteger receiveSize, long long expectedSize) {
             
-            NSArray *callbacksForURL = [self removeAndReturnCallbacksForURL:url];
+            NSArray *callbacksForURL = [self callbacksForURL:url remove:YES];
             for (NSDictionary *callbacks in callbacksForURL) {
                 SKWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
                 if (callback) {
@@ -106,7 +106,7 @@ NSString * const kCompletedCallbackKey = @"completed";
                 }
             }
         } completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL finish) {
-                NSArray *callbacksForURL = [self removeAndReturnCallbacksForURL:url];
+                NSArray *callbacksForURL = [self callbacksForURL:url remove:finish];
                 for (NSDictionary *callbacks in callbacksForURL) {
                     SKWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
                     if (callback) {
@@ -114,7 +114,7 @@ NSString * const kCompletedCallbackKey = @"completed";
                     }
                 }
         } cancelled:^{
-            [self removeAndReturnCallbacksForURL:url];
+            [self callbacksForURL:url remove:YES];
         }];
         [self.downloadQueue addOperation:operation];
     }];
@@ -146,13 +146,30 @@ NSString * const kCompletedCallbackKey = @"completed";
     });
 }
 
-- (NSArray *)removeAndReturnCallbacksForURL:(NSURL *)url
+//- (NSArray *)removeAndReturnCallbacksForURL:(NSURL *)url
+//{
+//    __block NSArray * callbacksForURL;
+//    dispatch_barrier_sync(self.barrierQueue, ^{
+//        callbacksForURL = self.URLCallbacks[url];
+//        [self.URLCallbacks removeObjectForKey:url];
+//    });
+//    return callbacksForURL;
+//}
+- (NSArray *)callbacksForURL:(NSURL *)url remove:(BOOL)remove
 {
-    __block NSArray * callbacksForURL;
-    dispatch_barrier_sync(self.barrierQueue, ^{
-        callbacksForURL = self.URLCallbacks[url];
-        [self.URLCallbacks removeObjectForKey:url];
-    });
+    __block NSArray *callbacksForURL;
+    if (remove) {
+        dispatch_barrier_sync(self.barrierQueue, ^{
+            callbacksForURL = self.URLCallbacks[url];
+            [self.URLCallbacks removeObjectForKey:url];
+        });
+    }
+    else
+    {
+        dispatch_sync(self.barrierQueue, ^{
+            callbacksForURL = self.URLCallbacks[url];
+        });
+    }
     return callbacksForURL;
 }
 @end

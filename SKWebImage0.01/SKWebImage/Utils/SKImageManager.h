@@ -21,7 +21,7 @@ typedef enum
 
 }SKWebImageOptions;
 
-typedef void(^SKWebImageCompletedBlock)(UIImage *image,NSError *error,BOOL fromCache);
+typedef void(^SKWebImageCompletedBlock)(UIImage *image,NSError *error,BOOL fromCache,BOOL finished);
 
 typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
 /**
@@ -83,7 +83,7 @@ typedef NSString *_Nullable(^CacheKeyFilter)(NSURL *url);
 - (id<SKWebImageOperation>)downloadWithURL:(NSURL *)url
                 options:(SKWebImageOptions)options
                progress:(SKWebImageDownloaderProgressBlock)progressBlock
-              completed:(SKWebImageDownloaderCompletedBlock)completedBlock;
+              completed:(SKWebImageCompletedBlock)completedBlock;
 
 /**
  * Cancel all pending download requests for a given delegate

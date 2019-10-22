@@ -20,7 +20,7 @@ static NSString *url03 = @"http://b-ssl.duitang.com/uploads/item/201705/13/20170
 - (void)viewDidLoad {
     
     [super viewDidLoad];
-    [self.image01 setImageWithURL:[NSURL URLWithString:url03] completed:^(UIImage *image, NSError *error, BOOL fromCache) {
+    [self.image01 setImageWithURL:[NSURL URLWithString:url03] placeholderImage:nil completed:^(UIImage *image, NSError *error, BOOL fromCache, BOOL finished) {
         
     }];
     // Do any additional setup after loading the view.

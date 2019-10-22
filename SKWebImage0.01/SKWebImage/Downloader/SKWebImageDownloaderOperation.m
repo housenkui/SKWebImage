@@ -144,7 +144,7 @@
         [connection cancel];
         [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:nil];
         if (self.completedBlock) {
-            self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:[(NSHTTPURLResponse *)response statusCode]  userInfo:nil], NO);
+            self.completedBlock(nil, [NSError errorWithDomain:NSURLErrorDomain code:[(NSHTTPURLResponse *)response statusCode]  userInfo:nil], YES);
         }
         [self done];
     }
@@ -247,7 +247,7 @@
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:nil];
     if (self.completedBlock) {
-        self.completedBlock(nil, error, NO);
+        self.completedBlock(nil, error, YES);
     }
     [self done];
 }

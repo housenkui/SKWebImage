@@ -48,13 +48,13 @@ static char operationKey;
     [self cancelCurrentImageLoad];
     self.image = placeholder;
     if (url) {
-        id <SKWebImageOperation>operation = [SKImageManager.sharedManager downloadWithURL:url options:options progress:progressBlock completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL fromCache) {
+        id <SKWebImageOperation>operation = [SKImageManager.sharedManager downloadWithURL:url options:options progress:progressBlock completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL fromCache,BOOL finished) {
             if (image) {
                 self.image = image;
                 [self setNeedsLayout];
             }
             if (completedBlock) {
-                completedBlock(image,error,fromCache);
+                completedBlock(image,error,fromCache,finished);
             }
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

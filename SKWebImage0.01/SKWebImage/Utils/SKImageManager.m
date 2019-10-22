@@ -79,7 +79,7 @@
     }
 }
 
-- (id<SKWebImageOperation>)downloadWithURL:(NSURL *)url options:(SKWebImageOptions)options progress:(SKWebImageDownloaderProgressBlock)progressBlock completed:(SKWebImageDownloaderCompletedBlock)completedBlock
+- (id<SKWebImageOperation>)downloadWithURL:(NSURL *)url options:(SKWebImageOptions)options progress:(SKWebImageDownloaderProgressBlock)progressBlock completed:(SKWebImageCompletedBlock)completedBlock
 {
     
     if ([url isKindOfClass:NSString.class]) {
@@ -88,7 +88,7 @@
     __block SKImageCombinedOperation *operation = SKImageCombinedOperation.new;
     if (!url || !completedBlock || (!(options & SKWebImageRetryFailed) &&[self.failedURLs containsObject:url])) {
         if (completedBlock) {
-            completedBlock(nil,nil,NO);
+            completedBlock(nil,nil,NO,NO);
             return operation;
         }
     }
@@ -102,7 +102,7 @@
         }
         if (image) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                completedBlock(image,nil,YES);
+                completedBlock(image,nil,YES,YES);
                 [self.runingOperations removeObject:operation];
             });
         }
@@ -117,13 +117,17 @@
             }
             __block id <SKWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloadOptions progress:progressBlock completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL finish) {
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    completedBlock(image,error,NO,finish);
+                    
                     if (error) {
                         [self.failedURLs addObject:url];
                     }
-                    completedBlock(image,error,NO);
-                    [self.runingOperations removeObject:operation];
-                    if (image) {
+                    else if (image && finish) {
                         [self.imageCache storeImage:image forKey:key];
+                    }
+                    if (finish) {
+                        [self.runingOperations removeObject:operation];
                     }
                 });
             }];

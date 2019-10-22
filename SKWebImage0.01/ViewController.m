@@ -90,7 +90,7 @@ static NSString *url05 = @"https://www.tuchuang001.com/images/2017/05/02/1.png";
 //    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:nil];
     [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:placeholder options:0 progress:^(NSUInteger receiveSize, long long expectedSize) {
         NSLog(@"progress ------ receiveSize = %lu-----expectedSize = %lld",receiveSize,expectedSize);
-    } completed:^(UIImage * _Nonnull image, NSError * _Nonnull error, BOOL fromCache) {
+    } completed:^(UIImage * _Nonnull image, NSError * _Nonnull error, BOOL fromCache,BOOL finished) {
 //        NSLog(@"cellForRowAtIndexPath");
     }];
    

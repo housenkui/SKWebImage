@@ -76,7 +76,7 @@ static NSString *url05 = @"https://www.tuchuang001.com/images/2017/05/02/1.png";
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return 1;
+    return 5;
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
@@ -88,9 +88,12 @@ static NSString *url05 = @"https://www.tuchuang001.com/images/2017/05/02/1.png";
     UITableViewCell *cell  =[tableView dequeueReusableCellWithIdentifier:REUSEID];
     UIImage *placeholder = [UIImage imageNamed:@"placeholder.jpeg"];
 //    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:nil];
-    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:placeholder options:0 completed:^(UIImage * _Nonnull image, NSError * _Nonnull error, BOOL fromCache) {
+    [cell.imageView setImageWithURL:[NSURL URLWithString:self.dataArray[indexPath.row]] placeholderImage:placeholder options:0 progress:^(NSUInteger receiveSize, long long expectedSize) {
+        NSLog(@"progress ------ receiveSize = %lu-----expectedSize = %lld",receiveSize,expectedSize);
+    } completed:^(UIImage * _Nonnull image, NSError * _Nonnull error, BOOL fromCache) {
 //        NSLog(@"cellForRowAtIndexPath");
     }];
+   
     cell.textLabel.text = [NSString stringWithFormat:@"{%ld-%ld}",(long)indexPath.section,(long)indexPath.row];
     return cell;
 }

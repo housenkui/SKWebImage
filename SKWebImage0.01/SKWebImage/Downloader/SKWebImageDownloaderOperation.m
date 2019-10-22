@@ -57,7 +57,6 @@
         if (self.options & SKWebImageDownloaderlowPriority) {
             [self.connect scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         }
-//        [self.connect start];
         if (self.connect) {
             [[NSNotificationCenter defaultCenter]postNotificationName:SKWebImageDownloadStartNotification object:self];
         }
@@ -232,4 +231,13 @@
 {
     return nil;
 }
+//- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
+//{
+//    return YES;
+//}
+//
+//- (BOOL)connectionShouldUseCredentialStorage:(NSURLConnection *)connection
+//{
+//    return YES;
+//}
 @end

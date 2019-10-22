@@ -70,6 +70,7 @@
 		EF37651C23376F7500151832 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		EF37651E23376F7500151832 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EF37651F23376F7500151832 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EF7301C7234E0A660041373E /* CPmetamacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CPmetamacros.h; sourceTree = "<group>"; };
 		EFB7D4E8233E474700BC5118 /* SKWebImageCompat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKWebImageCompat.h; sourceTree = "<group>"; };
 		EFB7D4F2233F8B5800BC5118 /* SKImageDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKImageDecoder.h; sourceTree = "<group>"; };
 		EFB7D4F3233F8B5800BC5118 /* SKImageDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SKImageDecoder.m; sourceTree = "<group>"; };
@@ -161,6 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				EFB7D4E8233E474700BC5118 /* SKWebImageCompat.h */,
+				EF7301C7234E0A660041373E /* CPmetamacros.h */,
 				EFB7D5182340CD2F00BC5118 /* Categories */,
 				EFB7D5172340CD2200BC5118 /* Utils */,
 				EFB7D5162340CD1C00BC5118 /* Cache */,

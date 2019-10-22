@@ -1,10 +1,10 @@
-//
-//  SDWebImageDownloaderOperation.m
-//  SDWebImage
-//
-//  Created by Olivier Poitrey on 04/11/12.
-//  Copyright (c) 2012 Dailymotion. All rights reserved.
-//
+/*
+ * This file is part of the SDWebImage package.
+ * (c) Olivier Poitrey <rs@dailymotion.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 #import "SDWebImageDownloaderOperation.h"
 #import "SDWebImageDecoder.h"
@@ -14,6 +14,7 @@
 
 @property (strong, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
 @property (strong, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
+@property (strong, nonatomic) void (^cancelBlock)(void);
 
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
@@ -29,7 +30,7 @@
 }
 @synthesize executing = _executing;
 @synthesize finished = _finished;
-- (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock
+- (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock cancelled:(void (^)(void))cancelBlock
 {
     if ((self = [super init]))
     {
@@ -37,6 +38,7 @@
         _options = options;
         _progressBlock = progressBlock;
         _completedBlock = completedBlock;
+        _cancelBlock = cancelBlock;
         _executing = NO;
         _finished = NO;
         _expectedSize = 0;
@@ -84,6 +86,7 @@
 {
     if (self.isFinished) return;
     [super cancel];
+    if (self.cancelBlock) self.cancelBlock();
 
     if (self.connection)
     {
@@ -95,19 +98,12 @@
         if (!self.isFinished) self.finished = YES;
         if (self.isExecuting) self.executing = NO;
     }
-
-    self.connection = nil;
-    self.imageData = nil;
 }
 
 - (void)done
 {
     self.finished = YES;
     self.executing = NO;
-    self.completedBlock = nil;
-    self.progressBlock = nil;
-    self.connection = nil;
-    self.imageData = nil;
 }
 
 - (void)setFinished:(BOOL)finished
@@ -115,6 +111,15 @@
     [self willChangeValueForKey:@"isFinished"];
     _finished = finished;
     [self didChangeValueForKey:@"isFinished"];
+
+    if (finished)
+    {
+        self.cancelBlock = nil;
+        self.completedBlock = nil;
+        self.progressBlock = nil;
+        self.connection = nil;
+        self.imageData = nil;
+    }
 }
 
 - (void)setExecuting:(BOOL)executing
@@ -248,5 +253,12 @@
 
     [self done];
 }
+
+- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
+{
+    // Prevents caching of responses
+    return nil;
+}
+
 
 @end

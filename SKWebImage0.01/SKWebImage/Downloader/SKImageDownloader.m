@@ -21,6 +21,7 @@ NSString * const kCompletedCallbackKey = @"completed";
 @interface SKImageDownloader ()
 @property (strong,nonatomic) NSOperationQueue *downloadQueue;
 @property (strong,nonatomic) NSMutableDictionary *URLCallbacks;
+@property (strong,nonatomic) dispatch_queue_t barrierQueue;
 @end
 @implementation SKImageDownloader
 
@@ -60,6 +61,7 @@ NSString * const kCompletedCallbackKey = @"completed";
         _downloadQueue = NSOperationQueue.new;
         _downloadQueue.maxConcurrentOperationCount = 10;
         _URLCallbacks = NSMutableDictionary.new;
+        _barrierQueue = dispatch_queue_create("com.github.SKWebImage",DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
@@ -73,70 +75,77 @@ NSString * const kCompletedCallbackKey = @"completed";
     return _downloadQueue.maxConcurrentOperationCount;
 }
 
-- (id <SKWebImageOperation>)downloadImageWithURL:(NSURL *)url options:(SKWebImageDownloaderOptions)options
+- (NSOperation *)downloadImageWithURL:(NSURL *)url options:(SKWebImageDownloaderOptions)options
                                         progress:(SKWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SKWebImageDownloaderCompletedBlock)completedBlock
 {
     __block SKWebImageDownloaderOperation *operation;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        BOOL performDownload = NO;
-        if (!self.URLCallbacks[url]) {
-            self.URLCallbacks[url] = NSMutableArray.new;
-            performDownload = YES;
-        }
-        //Handle single download of simultaneous(同步的) download request for the same URL
-        {
-            NSMutableArray *callbacksForURL = self.URLCallbacks[url];
-            NSMutableDictionary *callbacks = NSMutableDictionary.new;
-            if (progressBlock) {
-                callbacks[kProgressCallbackKey] = progressBlock;
+    @weakify(self);
+    [self addProgressCallback:progressBlock andCompletedBlock:completedBlock forURL:url createCallback:^{
+        @strongify(self);
+        //In order to prevent from potential duplicate caching (NSURLCache + SKImageCache) we disable the cache for image requests
+        NSMutableURLRequest *request = [NSMutableURLRequest.alloc initWithURL:url cachePolicy:NSURLCacheStorageNotAllowed timeoutInterval:15];
+        request.HTTPShouldHandleCookies = NO;
+        request.HTTPShouldUsePipelining = YES;
+        [request addValue:@"image/*" forHTTPHeaderField:@"Accept"];
+        
+        operation = [SKWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receiveSize, long long expectedSize) {
+            
+            NSArray *callbacksForURL = [self removeAndReturnCallbacksForURL:url];
+            for (NSDictionary *callbacks in callbacksForURL) {
+                SKWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
+                if (callback) {
+                    callback(receiveSize,expectedSize);
+                }
             }
-            if (completedBlock) {
-                callbacks[kCompletedCallbackKey] = completedBlock;
-            }
-            [callbacksForURL addObject:callbacks];
-            self.URLCallbacks[url] = callbacksForURL;
-        }
-        if (performDownload) {
-//            NSURLRequest *request = [[NSURLRequest alloc]initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:15];
-            NSMutableURLRequest *request = [NSMutableURLRequest.alloc initWithURL:url cachePolicy:NSURLCacheStorageNotAllowed timeoutInterval:15];
-            request.HTTPShouldHandleCookies = NO;
-            request.HTTPShouldUsePipelining = YES;
-            [request addValue:@"image/*" forHTTPHeaderField:@"Accept"];
-
-            operation = [SKWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receiveSize, long long expectedSize) {
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSMutableArray *callbacksForURL = self.URLCallbacks[url];
-                    for (NSDictionary *callbacks in callbacksForURL) {
-                        SKWebImageDownloaderProgressBlock callback = callbacks[kProgressCallbackKey];
-                        if (callback) {
-                            callback(receiveSize,expectedSize);
-                        }
+        } completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL finish) {
+                NSArray *callbacksForURL = [self removeAndReturnCallbacksForURL:url];
+                for (NSDictionary *callbacks in callbacksForURL) {
+                    SKWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
+                    if (callback) {
+                        callback(image,error,finish);
                     }
-                });
-            } completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL finish) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSMutableArray *callbacksForURL = self.URLCallbacks[url];
-                    [self.URLCallbacks removeObjectForKey:url];
-                    for (NSDictionary *callbacks in callbacksForURL) {
-                        SKWebImageDownloaderCompletedBlock callback = callbacks[kCompletedCallbackKey];
-                        if (callback) {
-                            callback(image,error,finish);
-                        }
-                    }
-                });
-            } cancelled:^{
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.URLCallbacks removeObjectForKey:url];
-                });
-            }];
-            [self.downloadQueue addOperation:operation];
-        }
-    });
-    
+                }
+        } cancelled:^{
+            [self removeAndReturnCallbacksForURL:url];
+        }];
+        [self.downloadQueue addOperation:operation];
+    }];
     return operation;
 }
 
+- (void)addProgressCallback:(void (^)(NSUInteger,long long )) progressBlock andCompletedBlock:(void (^) (UIImage *,NSError *,BOOL))completedBlock forURL:(NSURL *)url createCallback:(void (^)(void))createCallback
+{
+    dispatch_barrier_async(self.barrierQueue, ^{
+        BOOL first = NO;
+        if (!self.URLCallbacks[url]) {
+            self.URLCallbacks[url] = NSMutableArray.new;
+            first = YES;
+        }
+        //Handle single download of simultaneous(同步的) download request for the same URL
+        NSMutableArray *callbacksForURL = self.URLCallbacks[url];
+        NSMutableDictionary *callbacks = NSMutableDictionary.new;
+        if (progressBlock) {
+            callbacks[kProgressCallbackKey] = progressBlock;
+        }
+        if (completedBlock) {
+            callbacks[kCompletedCallbackKey] = completedBlock;
+        }
+        [callbacksForURL addObject:callbacks];
+        self.URLCallbacks[url] = callbacksForURL;
+        if (first) {
+            createCallback();
+        }
+    });
+}
+
+- (NSArray *)removeAndReturnCallbacksForURL:(NSURL *)url
+{
+    __block NSArray * callbacksForURL;
+    dispatch_barrier_sync(self.barrierQueue, ^{
+        callbacksForURL = self.URLCallbacks[url];
+        [self.URLCallbacks removeObjectForKey:url];
+    });
+    return callbacksForURL;
+}
 @end

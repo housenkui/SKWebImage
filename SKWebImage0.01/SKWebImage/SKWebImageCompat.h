@@ -8,6 +8,7 @@
 
 #ifndef SKWebImageCompat_h
 #define SKWebImageCompat_h
+#import "CPmetamacros.h"
 #import <TargetConditionals.h>
 
 #if !TARGET_OS_IPHONE
@@ -21,6 +22,38 @@
 #else
 #import <UIKit/UIKit.h>
 #endif
+
+#ifndef weakify
+#define weakify(...) \
+cp_keywordify \
+metamacro_foreach_cxt(cp_weakify_,, __weak, __VA_ARGS__)
+#endif
+
+#ifndef strongify
+#define strongify(...) \
+cp_keywordify \
+_Pragma("clang diagnostic push") \
+_Pragma("clang diagnostic ignored \"-Wshadow\"") \
+metamacro_foreach(cp_strongify_,, __VA_ARGS__) \
+_Pragma("clang diagnostic pop")
+#endif
+
+#define cp_weakify_(INDEX, CONTEXT, VAR) \
+CONTEXT __typeof__(VAR) metamacro_concat(VAR, _weak_) = (VAR);
+
+#define cp_strongify_(INDEX, VAR) \
+__strong __typeof__(VAR) VAR = metamacro_concat(VAR, _weak_);
+
+#if DEBUG
+#define cp_keywordify autoreleasepool {}
+#else
+#define cp_keywordify try {} @catch (...) {}
+#endif
+
+//最终转换为 //https://www.jianshu.com/p/701da54bd78c
+//@weakify(self) = @autoreleasepool{} __weak __typeof__ (self) self_weak_ = self;
+//
+//@strongify(self) = @autoreleasepool{} __strong __typeof__(self) self = self_weak_;
 
 /**
  根据屏幕分辨率 返回一张放大的图，有这个必要吗？？？

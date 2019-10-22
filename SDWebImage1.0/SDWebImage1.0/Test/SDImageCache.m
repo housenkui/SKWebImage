@@ -54,7 +54,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
         // Init the disk cache
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         _diskCachePath = [paths[0] stringByAppendingPathComponent:fullNamespace];
-        NSLog(@"_diskCachePath = %@",_diskCachePath);
 
 #if TARGET_OS_IPHONE
         // Subscribe to app events
@@ -192,16 +191,10 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
 
         dispatch_data_apply(dispatchedData, (dispatch_data_applier_t)^(dispatch_data_t region, size_t offset, const void *buffer, size_t size)
         {
-            UIImage *diskImage = SDScaledImageForPath(key, [NSData dataWithBytes:buffer length:size]);
+            UIImage *diskImage = [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithBytes:buffer length:size])];
 
-            if (image)
+            if (diskImage)
             {
-                UIImage *decodedImage = [UIImage decodedImageWithImage:diskImage];
-                if (decodedImage)
-                {
-                    diskImage = decodedImage;
-                }
-
                 [self.memCache setObject:diskImage forKey:key cost:image.size.height * image.size.width * image.scale];
             }
 
@@ -210,9 +203,6 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
             return true;
         });
     });
-
-//    dispatch_release(ioChannel);
-
 }
 
 - (void)removeImageForKey:(NSString *)key

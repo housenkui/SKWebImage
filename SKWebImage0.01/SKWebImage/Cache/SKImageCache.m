@@ -142,12 +142,8 @@ static NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
         }
         
         dispatch_data_apply(data, ^bool(dispatch_data_t  _Nonnull region, size_t offset, const void * _Nonnull buffer, size_t size) {
-            UIImage *diskImage = SKScaledImageForPath(key, [NSData dataWithBytes:buffer length:size]);
+            UIImage *diskImage = [UIImage decodedImageWithImage:SKScaledImageForPath(key, [NSData dataWithBytes:buffer length:size])] ;
             if (diskImage) {
-                UIImage *decodedImage = [UIImage decodedImageWithImage:diskImage];
-                if (decodedImage) {
-                    diskImage = decodedImage;
-                }
                 [self.memCache setObject:diskImage forKey:key cost:image.size.height * image.size.width *image.scale];
             }
             NSLog(@"dispatch_data_apply");
@@ -155,7 +151,6 @@ static NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 7 days
             return true;
         });
     });
-    
 }
 - (void)removeImageForKey:(NSString *)key {
     [self removeImageForKey:key fromDisk:YES];

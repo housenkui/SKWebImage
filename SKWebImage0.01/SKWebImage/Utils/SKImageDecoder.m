@@ -99,7 +99,7 @@
                                                  bitmapInfo);
     CGColorSpaceRelease(colorSpace);
     if (!context) {
-        return nil;
+        return image;
     }
 //    UIGraphicsBeginImageContextWithOptions(image.size, !imageHasAlphaInfo, 0);
     CGRect rect = (CGRect) {.origin = CGPointZero,.size = image.size};

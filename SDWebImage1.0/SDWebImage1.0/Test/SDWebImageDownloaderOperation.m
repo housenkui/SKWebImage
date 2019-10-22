@@ -51,6 +51,7 @@
     if (self.isCancelled)
     {
         self.finished = YES;
+        [self reset];
         return;
     }
 
@@ -95,15 +96,27 @@
 
         // As we cancelled the connection, its callback won't be called and thus won't
         // maintain the isFinished and isExecuting flags.
-        if (!self.isFinished) self.finished = YES;
         if (self.isExecuting) self.executing = NO;
+        if (!self.isFinished) self.finished = YES;
     }
+
+    [self reset];
 }
 
 - (void)done
 {
     self.finished = YES;
     self.executing = NO;
+    [self reset];
+}
+
+- (void)reset
+{
+    self.cancelBlock = nil;
+    self.completedBlock = nil;
+    self.progressBlock = nil;
+    self.connection = nil;
+    self.imageData = nil;
 }
 
 - (void)setFinished:(BOOL)finished
@@ -111,15 +124,6 @@
     [self willChangeValueForKey:@"isFinished"];
     _finished = finished;
     [self didChangeValueForKey:@"isFinished"];
-
-    if (finished)
-    {
-        self.cancelBlock = nil;
-        self.completedBlock = nil;
-        self.progressBlock = nil;
-        self.connection = nil;
-        self.imageData = nil;
-    }
 }
 
 - (void)setExecuting:(BOOL)executing
@@ -235,8 +239,17 @@
 
     if (self.completedBlock)
     {
-        UIImage *image = [UIImage decodedImageWithImage:SDScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
-        self.completedBlock(image, nil, YES);
+        __block SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
+        UIImage *image = SDScaledImageForPath(self.request.URL.absoluteString, self.imageData);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
+        {
+            UIImage *decodedImage = [UIImage decodedImageWithImage:image];
+            dispatch_async(dispatch_get_main_queue(), ^
+            {
+                completionBlock(decodedImage, nil, YES);
+                completionBlock = nil;
+            });
+        });
     }
 
     [self done];

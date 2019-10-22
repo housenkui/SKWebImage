@@ -76,7 +76,7 @@
 {
     //一张10M的图片在子线程解码的时间 134.863us(毫秒)
 //    NSLog(@"decodedImageWithImage start %@",[NSThread currentThread]);
-//    NSLog(@"-----%@---- %@-",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode]);
+    NSLog(@"-----%@---- %@-",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode]);
 
     CGImageRef imageRef =  image.CGImage;
 //    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();

@@ -46,6 +46,7 @@
 {
     if (self.isCancelled) {
         self.finished = YES;
+        [self reset];
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -85,26 +86,28 @@
         if (!self.isFinished) self.finished = YES;
         if (self.isExecuting) self.executing = NO;
     }
+    [self reset];
 }
 
 - (void)done
 {
     self.finished = YES;
     self.executing = NO;
+    [self reset];
 }
-
+- (void)reset
+{
+    self.cancelBlock = nil;
+    self.completedBlock = nil;
+    self.progressBlock = nil;
+    self.connect = nil;
+    self.imageData = nil;
+}
 - (void)setFinished:(BOOL)finished
 {
     [self willChangeValueForKey:@"isFinished"];
     _finished = finished;
     [self didChangeValueForKey:@"isFinished"];
-    if (finished) {
-        self.cancelBlock = nil;
-        self.completedBlock = nil;
-        self.progressBlock = nil;
-        self.connect = nil;
-        self.imageData = nil;
-    }
 }
 
 - (void)setExecuting:(BOOL)executing
@@ -211,8 +214,15 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:self];
     
     if (self.completedBlock) {
-        UIImage *image = [UIImage decodedImageWithImage:SKScaledImageForPath(self.request.URL.absoluteString, self.imageData)];
-        self.completedBlock(image, nil, YES);
+        __block SKWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;
+        UIImage *image = SKScaledImageForPath(self.request.URL.absoluteString, self.imageData);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+            UIImage *decodedImage = [UIImage decodedImageWithImage:image];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionBlock(decodedImage,nil,YES);
+                completionBlock = nil;
+            });
+        });
     }
     [self done];
 }

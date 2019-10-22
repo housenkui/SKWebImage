@@ -14,7 +14,7 @@
 
 @property (strong, nonatomic) SDWebImageDownloaderProgressBlock progressBlock;
 @property (strong, nonatomic) SDWebImageDownloaderCompletedBlock completedBlock;
-@property (strong, nonatomic) void (^cancelBlock)(void);
+@property (strong, nonatomic) void (^cancelBlock)();
 
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
@@ -30,7 +30,7 @@
 }
 @synthesize executing = _executing;
 @synthesize finished = _finished;
-- (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock cancelled:(void (^)(void))cancelBlock
+- (id)initWithRequest:(NSURLRequest *)request options:(SDWebImageDownloaderOptions)options progress:(void (^)(NSUInteger, long long))progressBlock completed:(void (^)(UIImage *, NSError *, BOOL))completedBlock cancelled:(void (^)())cancelBlock
 {
     if ((self = [super init]))
     {
@@ -57,16 +57,15 @@
 
     dispatch_async(dispatch_get_main_queue(), ^
     {
-        self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
-        [self.connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-        [self.connection start];
         self.executing = YES;
+        self.connection = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
 
         // If not in low priority mode, ensure we aren't blocked by UI manipulations (default runloop mode for NSURLConnection is NSEventTrackingRunLoopMode)
-        if (self.options & SDWebImageDownloaderLowPriority)
+        if (!(self.options & SDWebImageDownloaderLowPriority))
         {
             [self.connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         }
+
         [self.connection start];
 
         if (self.connection)

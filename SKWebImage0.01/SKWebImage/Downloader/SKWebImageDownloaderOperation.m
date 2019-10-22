@@ -54,10 +54,16 @@
         [self.connect scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         [self.connect start];
         self.executing = YES;
+        self.connect = [NSURLConnection.alloc initWithRequest:self.request delegate:self startImmediately:NO];
         
-        if (self.options & SKWebImageDownloaderlowPriority) {
+        //If not in low priority mode,ensure we aren't blocked by UI manipulations(default runloop mode for NSURLConnection is NSEventTrackingRunLoopMode)
+        
+        if (!(self.options & SKWebImageDownloaderlowPriority)) {
             [self.connect scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         }
+        
+        [self.connect start];
+        
         if (self.connect) {
             [[NSNotificationCenter defaultCenter]postNotificationName:SKWebImageDownloadStartNotification object:self];
         }

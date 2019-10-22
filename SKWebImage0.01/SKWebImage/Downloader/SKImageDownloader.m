@@ -82,7 +82,7 @@ NSString * const kCompletedCallbackKey = @"completed";
     return _downloadQueue.maxConcurrentOperationCount;
 }
 
-- (NSOperation *)downloadImageWithURL:(NSURL *)url options:(SKWebImageDownloaderOptions)options
+- (id<SKWebImageOperation> )downloadImageWithURL:(NSURL *)url options:(SKWebImageDownloaderOptions)options
                                         progress:(SKWebImageDownloaderProgressBlock)progressBlock
                                        completed:(SKWebImageDownloaderCompletedBlock)completedBlock
 {
@@ -123,7 +123,7 @@ NSString * const kCompletedCallbackKey = @"completed";
 
 - (void)addProgressCallback:(void (^)(NSUInteger,long long )) progressBlock andCompletedBlock:(void (^) (UIImage *,NSError *,BOOL))completedBlock forURL:(NSURL *)url createCallback:(void (^)(void))createCallback
 {
-    dispatch_barrier_async(self.barrierQueue, ^{
+    dispatch_barrier_sync(self.barrierQueue, ^{
         BOOL first = NO;
         if (!self.URLCallbacks[url]) {
             self.URLCallbacks[url] = NSMutableArray.new;

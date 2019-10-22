@@ -115,7 +115,7 @@
             if (options & SKWebImageProgressiveDownload) {
                 downloadOptions |= SKWebImageDownloaderProgressiveDownload;
             }
-            id <SKWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloadOptions progress:progressBlock completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL finish) {
+            __block id <SKWebImageOperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloadOptions progress:progressBlock completed:^(UIImage * _Nullable image, NSError * _Nullable error, BOOL finish) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (error) {
                         [self.failedURLs addObject:url];

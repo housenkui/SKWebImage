@@ -18,7 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong,nonatomic,readonly) NSURLRequest *request;
 @property (assign,nonatomic,readonly) SKWebImageDownloaderOptions options;
-- (instancetype)initWithRequest:(NSURLRequest *)request options:(SKWebImageDownloaderOptions)options
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                          queue:(dispatch_queue_t)queue
+                        options:(SKWebImageDownloaderOptions)options
                        progress:(SKWebImageDownloaderProgressBlock)progressBlock
                       completed:(SKWebImageDownloaderCompletedBlock)completedBlock
                       cancelled:(void(^)(void))cancelBlock;

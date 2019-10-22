@@ -18,6 +18,7 @@
 @property (assign,nonatomic)long long expectedSize;
 @property (strong,nonatomic) NSMutableData *imageData;
 @property (strong,nonatomic) NSURLConnection *connect;
+@property (strong,nonatomic) dispatch_queue_t queue;
 @end
 
 @implementation SKWebImageDownloaderOperation
@@ -27,9 +28,10 @@
 @synthesize executing = _executing;
 @synthesize finished = _finished;
 
-- (instancetype)initWithRequest:(NSURLRequest *)request options:(SKWebImageDownloaderOptions)options progress:(SKWebImageDownloaderProgressBlock)progressBlock completed:(SKWebImageDownloaderCompletedBlock)completedBlock cancelled:(nonnull void (^)(void))cancelBlock
+- (instancetype)initWithRequest:(NSURLRequest *)request queue:(dispatch_queue_t)queue options:(SKWebImageDownloaderOptions)options progress:(SKWebImageDownloaderProgressBlock)progressBlock completed:(SKWebImageDownloaderCompletedBlock)completedBlock cancelled:(nonnull void (^)(void))cancelBlock
 {
     if (self = [super init]) {
+        _queue = queue;
         _request = request;
         _options = options;
         _progressBlock = progressBlock;
@@ -130,10 +132,12 @@
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
     NSLog(@"- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response");
-    if ([response respondsToSelector:@selector(statusCode)] && [(NSHTTPURLResponse *)response statusCode] < 400)
+    if (![response respondsToSelector:@selector(statusCode)] || [(NSHTTPURLResponse *)response statusCode] < 400)
     {
-        self.expectedSize = response.expectedContentLength > 0 ? response.expectedContentLength : 0;
-        self.imageData = [[NSMutableData alloc]initWithCapacity:self.expectedSize];
+        dispatch_async(self.queue, ^{
+            self.expectedSize = response.expectedContentLength > 0 ? response.expectedContentLength : 0;
+            self.imageData = [[NSMutableData alloc]initWithCapacity:self.expectedSize];
+        });
     }
     else
     {
@@ -147,7 +151,7 @@
 }
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+    dispatch_async(self.queue, ^{
         [self.imageData appendData:data];
         //这里data.length 数值和什么有关系，最大值是多少？
         NSLog(@"-----%@---- %@----%lu",[NSThread currentThread], [[NSRunLoop currentRunLoop] currentMode],data.length);
@@ -220,7 +224,7 @@
 {
     self.connect = nil;
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+    dispatch_async(self.queue, ^{
         
         [[NSNotificationCenter defaultCenter] postNotificationName:SKWebImageDownloadStopNotification object:nil];
         

@@ -21,6 +21,8 @@ NSString * const kCompletedCallbackKey = @"completed";
 @interface SKImageDownloader ()
 @property (strong,nonatomic) NSOperationQueue *downloadQueue;
 @property (strong,nonatomic) NSMutableDictionary *URLCallbacks;
+//This queue is used to serialize the handling of the network reponses of all the download operation in a single queue
+@property (strong,nonatomic) dispatch_queue_t workingQueue;
 @property (strong,nonatomic) dispatch_queue_t barrierQueue;
 @end
 @implementation SKImageDownloader
@@ -61,9 +63,14 @@ NSString * const kCompletedCallbackKey = @"completed";
         _downloadQueue = NSOperationQueue.new;
         _downloadQueue.maxConcurrentOperationCount = 10;
         _URLCallbacks = NSMutableDictionary.new;
-        _barrierQueue = dispatch_queue_create("com.github.SKWebImage",DISPATCH_QUEUE_CONCURRENT);
+        _workingQueue = dispatch_queue_create("com.github.SKWebImageDownloader",DISPATCH_QUEUE_SERIAL);
+        _barrierQueue = dispatch_queue_create("com.github.SKWebImageDownloaderBarrierQueue",DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
+}
+- (void)dealloc
+{
+    [self.downloadQueue cancelAllOperations];
 }
 
 - (void)setMaxConcurrentDownloaders:(NSInteger)maxConcurrentDownloaders
@@ -89,7 +96,7 @@ NSString * const kCompletedCallbackKey = @"completed";
         request.HTTPShouldUsePipelining = YES;
         [request addValue:@"image/*" forHTTPHeaderField:@"Accept"];
         
-        operation = [SKWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receiveSize, long long expectedSize) {
+        operation = [SKWebImageDownloaderOperation.alloc initWithRequest:request queue:self.workingQueue options:options progress:^(NSUInteger receiveSize, long long expectedSize) {
             
             NSArray *callbacksForURL = [self removeAndReturnCallbacksForURL:url];
             for (NSDictionary *callbacks in callbacksForURL) {

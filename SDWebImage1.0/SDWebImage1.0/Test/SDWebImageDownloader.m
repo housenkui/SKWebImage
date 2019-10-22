@@ -20,6 +20,8 @@ NSString *const kCompletedCallbackKey = @"completed";
 
 @property (strong, nonatomic) NSOperationQueue *downloadQueue;
 @property (strong, nonatomic) NSMutableDictionary *URLCallbacks;
+// This queue is used to serialize the handling of the network responses of all the download operation in a single queue
+@property (strong, nonatomic) dispatch_queue_t workingQueue;
 @property (strong, nonatomic) dispatch_queue_t barrierQueue;
 
 @end
@@ -66,9 +68,16 @@ NSString *const kCompletedCallbackKey = @"completed";
         _downloadQueue = NSOperationQueue.new;
         _downloadQueue.maxConcurrentOperationCount = 10;
         _URLCallbacks = NSMutableDictionary.new;
+        _workingQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloader", DISPATCH_QUEUE_SERIAL);
         _barrierQueue = dispatch_queue_create("com.hackemist.SDWebImageDownloaderBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [self.downloadQueue cancelAllOperations];
+    
 }
 
 - (void)setMaxConcurrentDownloads:(NSInteger)maxConcurrentDownloads
@@ -93,7 +102,7 @@ NSString *const kCompletedCallbackKey = @"completed";
         request.HTTPShouldHandleCookies = NO;
         request.HTTPShouldUsePipelining = YES;
         [request addValue:@"image/*" forHTTPHeaderField:@"Accept"];
-        operation = [SDWebImageDownloaderOperation.alloc initWithRequest:request options:options progress:^(NSUInteger receivedSize, long long expectedSize)
+        operation = [SDWebImageDownloaderOperation.alloc initWithRequest:request queue:self.workingQueue options:options progress:^(NSUInteger receivedSize, long long expectedSize)
         {
             if (!wself) return;
             SDWebImageDownloader *sself = wself;
@@ -128,7 +137,7 @@ NSString *const kCompletedCallbackKey = @"completed";
     return operation;
 }
 
-- (void)addProgressCallback:(void (^)(NSUInteger, long long))progressBlock andCompletedBlock:(void (^)(UIImage *, NSError *, BOOL))completedBlock forURL:(NSURL *)url createCallback:(void (^)(void))createCallback
+- (void)addProgressCallback:(void (^)(NSUInteger, long long))progressBlock andCompletedBlock:(void (^)(UIImage *, NSError *, BOOL))completedBlock forURL:(NSURL *)url createCallback:(void (^)())createCallback
 {
     dispatch_barrier_async(self.barrierQueue, ^
     {
